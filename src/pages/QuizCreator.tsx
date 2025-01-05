@@ -9,6 +9,8 @@ import { QuizHeader } from "@/components/quiz/QuizHeader";
 import { MediaUpload } from "@/components/quiz/MediaUpload";
 import { QuizSidebar } from "@/components/quiz/QuizSidebar";
 
+type AnswerLimit = 'single' | 'multiple';
+
 interface Answer {
   id: number;
   text: string;
@@ -16,14 +18,10 @@ interface Answer {
   isCorrect: boolean;
 }
 
-type AnswerLimit = 'single' | 'multiple';
-
-const QuizCreator = () => {
+export default function QuizCreator() {
   const [answers, setAnswers] = useState<Answer[]>([
     { id: 1, text: '', isOptional: false, isCorrect: false },
-    { id: 2, text: '', isOptional: false, isCorrect: false },
-    { id: 3, text: '', isOptional: true, isCorrect: false },
-    { id: 4, text: '', isOptional: true, isCorrect: false },
+    { id: 2, text: '', isOptional: false, isCorrect: false }
   ]);
   const [answerLimit, setAnswerLimit] = useState<AnswerLimit>('single');
   const [questionMedia, setQuestionMedia] = useState<File | null>(null);
@@ -50,25 +48,6 @@ const QuizCreator = () => {
     return colors[index % colors.length];
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setQuestionMedia(file);
-    }
-  };
-
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files?.[0];
-    if (file) {
-      setQuestionMedia(file);
-    }
-  };
-
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
@@ -85,9 +64,6 @@ const QuizCreator = () => {
               <MediaUpload 
                 questionMedia={questionMedia}
                 fileInputRef={fileInputRef}
-                handleFileChange={handleFileChange}
-                handleDragOver={handleDragOver}
-                handleDrop={handleDrop}
                 setQuestionMedia={setQuestionMedia}
               />
 
@@ -169,6 +145,4 @@ const QuizCreator = () => {
       </div>
     </TooltipProvider>
   );
-};
-
-export default QuizCreator;
+}
