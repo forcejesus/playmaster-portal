@@ -28,8 +28,8 @@ const Login = () => {
         backgroundImage: `url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=2000&q=80')`,
         backgroundSize: 'cover'
       }}>
-        <div className="w-full h-full bg-primary/10 backdrop-blur-sm flex items-center justify-center p-12">
-          <div className="text-white space-y-4">
+        <div className="w-full h-full bg-gradient-to-br from-background to-secondary/20 backdrop-blur-sm flex items-center justify-center p-12">
+          <div className="text-foreground space-y-4">
             <h1 className="text-4xl font-bold">Khoot ECES JEUX</h1>
             <p className="text-xl opacity-80">Plateforme de gestion des jeux pédagogiques</p>
           </div>
@@ -37,7 +37,7 @@ const Login = () => {
       </div>
 
       {/* Login Form Section */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-gradient-to-b from-secondary to-background px-4">
+      <div className="w-full lg:w-1/2 flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-2 text-center">
             <div className="mx-auto bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center">
@@ -60,7 +60,7 @@ const Login = () => {
                   placeholder="nom@ecole.fr"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full"
+                  className="border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300"
                 />
               </div>
               <div className="space-y-2">
@@ -72,10 +72,10 @@ const Login = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full"
+                  className="border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300"
                 />
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
                 Se connecter
               </Button>
             </form>
