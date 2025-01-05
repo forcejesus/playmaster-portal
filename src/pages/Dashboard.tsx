@@ -7,11 +7,15 @@ import {
   Clock,
   Plus,
   BarChart2,
+  LogOut,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const stats = [
     {
       title: "Jeux actifs",
@@ -67,6 +71,11 @@ const Dashboard = () => {
     },
   ];
 
+  const handleLogout = () => {
+    toast.success("Déconnexion réussie");
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -78,11 +87,27 @@ const Dashboard = () => {
           >
             Tableau de bord
           </motion.h1>
-          <Link to="/quiz-creator">
-            <Button className="shadow-lg hover:shadow-xl transition-all duration-300">
-              <Plus className="mr-2 h-4 w-4" /> Nouveau jeu
-            </Button>
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/quiz-creator">
+              <Button className="shadow-lg hover:shadow-xl transition-all duration-300">
+                <Plus className="mr-2 h-4 w-4" /> Nouveau jeu
+              </Button>
+            </Link>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive border-destructive/30 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Déconnexion
+              </Button>
+            </motion.div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
