@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import QuizCreator from "./pages/QuizCreator";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/quiz-creator" element={<QuizCreator />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

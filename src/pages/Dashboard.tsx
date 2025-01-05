@@ -9,6 +9,7 @@ import {
   BarChart2,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const stats = [
@@ -77,9 +78,11 @@ const Dashboard = () => {
           >
             Tableau de bord
           </motion.h1>
-          <Button className="shadow-lg hover:shadow-xl transition-all duration-300">
-            <Plus className="mr-2 h-4 w-4" /> Nouveau jeu
-          </Button>
+          <Link to="/quiz-creator">
+            <Button className="shadow-lg hover:shadow-xl transition-all duration-300">
+              <Plus className="mr-2 h-4 w-4" /> Nouveau jeu
+            </Button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
