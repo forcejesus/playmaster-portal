@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Copy, Trash, Check } from 'lucide-react';
+import { Plus, Copy, Trash, Check, Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -42,6 +42,7 @@ export default function QuizCreator() {
   ]);
   const [answerLimit, setAnswerLimit] = useState<AnswerLimit>('single');
   const [questionMedia, setQuestionMedia] = useState<File | null>(null);
+  const [showGameSetup, setShowGameSetup] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCorrectAnswer = (answerId: number) => {
@@ -88,12 +89,48 @@ export default function QuizCreator() {
         <QuizNavigation />
         
         <div className="max-w-7xl mx-auto">
-          <GameSetup
-            gameTitle={gameTitle}
-            setGameTitle={setGameTitle}
-            gameCoverImage={gameCoverImage}
-            setGameCoverImage={setGameCoverImage}
-          />
+          {/* Toggle Game Setup Button */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 flex justify-end"
+          >
+            <Button
+              variant="outline"
+              onClick={() => setShowGameSetup(!showGameSetup)}
+              className="bg-[#9b87f5] hover:bg-[#D6BCFA] text-[#1A1F2C] border-2 border-[#9b87f5]/30 shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              {showGameSetup ? (
+                <>
+                  <EyeOff className="w-4 h-4 mr-2" />
+                  Cacher la configuration
+                </>
+              ) : (
+                <>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Afficher la configuration
+                </>
+              )}
+            </Button>
+          </motion.div>
+
+          <AnimatePresence>
+            {showGameSetup && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <GameSetup
+                  gameTitle={gameTitle}
+                  setGameTitle={setGameTitle}
+                  gameCoverImage={gameCoverImage}
+                  setGameCoverImage={setGameCoverImage}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Questions List */}
           <div className="space-y-6">
