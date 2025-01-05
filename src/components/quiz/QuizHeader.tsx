@@ -1,7 +1,12 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export const QuizHeader = () => {
+interface QuizHeaderProps {
+  gameTitle: string;
+  setGameTitle: (title: string) => void;
+}
+
+export const QuizHeader = ({ gameTitle, setGameTitle }: QuizHeaderProps) => {
   return (
     <header className="bg-white border-b px-6 py-4 rounded-t-xl shadow-md flex items-center justify-between mb-6">
       <div className="flex items-center gap-6">
@@ -10,6 +15,8 @@ export const QuizHeader = () => {
         </h1>
         <Input 
           placeholder="Nom du kahoot" 
+          value={gameTitle}
+          onChange={(e) => setGameTitle(e.target.value)}
           className="w-64 border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300"
         />
       </div>

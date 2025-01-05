@@ -18,7 +18,22 @@ interface Answer {
   isCorrect: boolean;
 }
 
+interface Question {
+  id: string;
+  libelle: string;
+  type_fichier: string;
+  temps: number;
+  limite_response: boolean;
+  typeQuestion: string;
+  point: string;
+  media?: File;
+  answers: Answer[];
+}
+
 export default function QuizCreator() {
+  const [gameTitle, setGameTitle] = useState("");
+  const [gameCoverImage, setGameCoverImage] = useState<File | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([
     { id: 1, text: '', isOptional: false, isCorrect: false },
     { id: 2, text: '', isOptional: false, isCorrect: false }
@@ -26,6 +41,7 @@ export default function QuizCreator() {
   const [answerLimit, setAnswerLimit] = useState<AnswerLimit>('single');
   const [questionMedia, setQuestionMedia] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverImageRef = useRef<HTMLInputElement>(null);
 
   const handleCorrectAnswer = (answerId: number) => {
     setAnswers(answers.map(answer => {
@@ -43,31 +59,166 @@ export default function QuizCreator() {
     }));
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setQuestionMedia(file);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      setQuestionMedia(file);
+    }
+  };
+
+  const handleCoverImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setGameCoverImage(file);
+    }
+  };
+
   const getAnswerColor = (index: number) => {
     const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c'];
     return colors[index % colors.length];
   };
 
+  const addNewQuestion = () => {
+    const newQuestion: Question = {
+      id: crypto.randomUUID(),
+      libelle: "",
+      type_fichier: "png",
+      temps: 30,
+      limite_response: true,
+      typeQuestion: "670e7d8996acbaac49443987", // Default value
+      point: "670e7e659c660d6c34411348", // Default value
+      answers: [
+        { id: 1, text: '', isOptional: false, isCorrect: false },
+        { id: 2, text: '', isOptional: false, isCorrect: false }
+      ]
+    };
+    setQuestions([...questions, newQuestion]);
+  };
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
-        <QuizHeader />
+        {/* Game Setup Section */}
+        <Card className="mb-8 p-6">
+          <h2 className="text-2xl font-bold mb-4 text-primary">Configuration du jeu</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Titre du jeu</label>
+              <Input
+                value={gameTitle}
+                onChange={(e) => setGameTitle(e.target.value)}
+                placeholder="Entrez le titre du jeu"
+                className="mb-4"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Image de couverture</label>
+              <div 
+                className={`
+                  border-2 border-dashed rounded-lg p-4 text-center cursor-pointer
+                  ${gameCoverImage ? 'border-green-500 bg-green-50' : 'border-primary/30 hover:border-primary'}
+                `}
+                onClick={() => coverImageRef.current?.click()}
+              >
+                <input
+                  type="file"
+                  ref={coverImageRef}
+                  onChange={handleCoverImageChange}
+                  className="hidden"
+                  accept="image/*"
+                />
+                {gameCoverImage ? (
+                  <div className="text-green-600">
+                    <Check className="w-8 h-8 mx-auto mb-2" />
+                    <p>{gameCoverImage.name}</p>
+                  </div>
+                ) : (
+                  <div className="text-primary">
+                    <Plus className="w-8 h-8 mx-auto mb-2" />
+                    <p>Ajouter une image de couverture</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
 
-        <div className="container mx-auto grid grid-cols-[1fr,300px] gap-6">
-          <main>
-            <Card className="p-8 mb-6 shadow-xl rounded-xl bg-white">
+        {/* Questions List */}
+        <div className="space-y-6">
+          {questions.map((question, index) => (
+            <Card key={question.id} className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">Question {index + 1}</h3>
+                <Button 
+                  variant="outline" 
+                  className="text-destructive"
+                  onClick={() => setQuestions(questions.filter(q => q.id !== question.id))}
+                >
+                  <Trash className="w-4 h-4" />
+                </Button>
+              </div>
+              
               <Input 
-                placeholder="Écris ta question"
-                className="text-2xl mb-6 border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300"
+                value={question.libelle}
+                onChange={(e) => {
+                  const updatedQuestions = [...questions];
+                  updatedQuestions[index].libelle = e.target.value;
+                  setQuestions(updatedQuestions);
+                }}
+                placeholder="Libellé de la question"
+                className="mb-4"
               />
 
               <MediaUpload 
                 questionMedia={questionMedia}
                 fileInputRef={fileInputRef}
+                handleFileChange={handleFileChange}
+                handleDragOver={handleDragOver}
+                handleDrop={handleDrop}
                 setQuestionMedia={setQuestionMedia}
               />
 
-              {/* Answer Options */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Temps (secondes)</label>
+                  <Input 
+                    type="number"
+                    value={question.temps}
+                    onChange={(e) => {
+                      const updatedQuestions = [...questions];
+                      updatedQuestions[index].temps = parseInt(e.target.value);
+                      setQuestions(updatedQuestions);
+                    }}
+                    min={5}
+                    max={120}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Type de fichier</label>
+                  <Input 
+                    value={question.type_fichier}
+                    onChange={(e) => {
+                      const updatedQuestions = [...questions];
+                      updatedQuestions[index].type_fichier = e.target.value;
+                      setQuestions(updatedQuestions);
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Existing answers section */}
               <AnimatePresence>
                 {answers.map((answer, index) => (
                   <motion.div
@@ -116,32 +267,20 @@ export default function QuizCreator() {
                   </motion.div>
                 ))}
               </AnimatePresence>
-
-              <Button 
-                variant="outline" 
-                className="mt-6 border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-                onClick={() => setAnswers([...answers, { id: answers.length + 1, text: '', isOptional: true, isCorrect: false }])}
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Ajouter plus de réponses
-              </Button>
             </Card>
-
-            {/* Bottom Actions */}
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10 transition-colors">
-                <Trash className="w-5 h-5 mr-2" />
-                Supprimer
-              </Button>
-              <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 transition-colors">
-                <Copy className="w-5 h-5 mr-2" />
-                Dupliquer
-              </Button>
-            </div>
-          </main>
-
-          <QuizSidebar setAnswerLimit={setAnswerLimit} />
+          ))}
         </div>
+
+        {/* Add Question Button */}
+        <Button 
+          className="mt-6 w-full"
+          onClick={addNewQuestion}
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Ajouter une nouvelle question
+        </Button>
+
+        <QuizSidebar setAnswerLimit={setAnswerLimit} />
       </div>
     </TooltipProvider>
   );
