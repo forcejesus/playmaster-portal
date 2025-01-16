@@ -11,17 +11,23 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 
+interface GamesResponse {
+  success: boolean;
+  message: string;
+  data: Game[];
+}
+
 const Dashboard = () => {
   const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
   const queryClient = useQueryClient();
   const { logout } = useAuth();
 
-  const { data: games, isLoading } = useQuery({
+  const { data: gamesResponse, isLoading } = useQuery({
     queryKey: ['games'],
     queryFn: async () => {
       const token = localStorage.getItem('token');
       console.log('Fetching games with token:', token);
-      const response = await axios.get<Game[]>(`${API_URL}/api/jeux`, {
+      const response = await axios.get<GamesResponse>(`${API_URL}/api/jeux`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -66,7 +72,7 @@ const Dashboard = () => {
         </div>
       </div>
       <GameList 
-        games={games || []} 
+        games={gamesResponse?.data || []} 
         isLoading={isLoading}
         onDelete={setGameToDelete} 
       />
