@@ -160,80 +160,79 @@ const Dashboard = () => {
           </Card>
         </motion.div>
 
-        <motion.div variants={item}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Liste des jeux</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex justify-center items-center h-32">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Titre</TableHead>
-                      <TableHead>Questions</TableHead>
-                      <TableHead>Planifications</TableHead>
-                      <TableHead>Date de création</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {games.map((game: Game) => (
-                      <TableRow 
-                        key={game._id}
-                        className="cursor-pointer hover:bg-muted/50"
+      <motion.div variants={item}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Liste des jeux</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Titre</TableHead>
+                    <TableHead>Questions</TableHead>
+                    <TableHead>Planifications</TableHead>
+                    <TableHead>Date de création</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {games.map((game: Game) => (
+                    <TableRow 
+                      key={game._id}
+                      className="cursor-pointer hover:bg-muted/50"
+                    >
+                      <TableCell 
+                        className="font-medium"
+                        onClick={() => setSelectedGame(game)}
                       >
-                        <TableCell 
-                          className="font-medium"
-                          onClick={() => setSelectedGame(game)}
+                        {game.titre}
+                      </TableCell>
+                      <TableCell onClick={() => setSelectedGame(game)}>
+                        <div className="flex items-center gap-2">
+                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                          {game.questions.length}
+                        </div>
+                      </TableCell>
+                      <TableCell onClick={() => setSelectedGame(game)}>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          {game.planification.length}
+                        </div>
+                      </TableCell>
+                      <TableCell onClick={() => setSelectedGame(game)}>
+                        {new Date(game.date).toLocaleDateString('fr-FR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </TableCell>
+                      <TableCell className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive/90"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setGameToDelete(game);
+                          }}
                         >
-                          {game.titre}
-                        </TableCell>
-                        <TableCell onClick={() => setSelectedGame(game)}>
-                          <div className="flex items-center gap-2">
-                            <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                            {game.questions.length}
-                          </div>
-                        </TableCell>
-                        <TableCell onClick={() => setSelectedGame(game)}>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            {game.planification.length}
-                          </div>
-                        </TableCell>
-                        <TableCell onClick={() => setSelectedGame(game)}>
-                          {new Date(game.date).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </TableCell>
-                        <TableCell className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive/90"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setGameToDelete(game);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
 
       <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
