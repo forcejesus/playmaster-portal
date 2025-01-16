@@ -1,89 +1,38 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
-  Calendar,
-  GamepadIcon,
-  Users,
   Clock,
   Plus,
   BarChart2,
   LogOut,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const stats = [
-    {
-      title: "Jeux actifs",
-      value: "12",
-      icon: GamepadIcon,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
-    },
-    {
-      title: "Élèves participants",
-      value: "156",
-      icon: Users,
-      color: "text-green-500",
-      bgColor: "bg-green-50",
-    },
-    {
-      title: "Sessions planifiées",
-      value: "8",
-      icon: Calendar,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50",
-    },
-    {
-      title: "Temps de jeu total",
-      value: "24h",
-      icon: Clock,
-      color: "text-orange-500",
-      bgColor: "bg-orange-50",
-    },
+    { id: 1, title: "Jeux créés", value: 12 },
+    { id: 2, title: "Utilisateurs", value: 150 },
+    { id: 3, title: "Jeux joués", value: 300 },
   ];
 
   const recentGames = [
-    {
-      title: "Mathématiques - Fractions",
-      date: "Aujourd'hui",
-      participants: 25,
-      subject: "Mathématiques",
-      color: "bg-blue-100",
-    },
-    {
-      title: "Histoire - Moyen Âge",
-      date: "Hier",
-      participants: 28,
-      subject: "Histoire",
-      color: "bg-green-100",
-    },
-    {
-      title: "Géographie - Capitales",
-      date: "Il y a 2 jours",
-      participants: 22,
-      subject: "Géographie",
-      color: "bg-purple-100",
-    },
+    { id: 1, title: "Jeu 1", date: "2023-10-01" },
+    { id: 2, title: "Jeu 2", date: "2023-10-02" },
+    { id: 3, title: "Jeu 3", date: "2023-10-03" },
   ];
-
-  const handleLogout = () => {
-    toast.success("Déconnexion réussie");
-    navigate("/login");
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60"
+            className="text-3xl font-bold"
           >
             Tableau de bord
           </motion.h1>
@@ -100,7 +49,7 @@ const Dashboard = () => {
             >
               <Button
                 variant="outline"
-                onClick={handleLogout}
+                onClick={logout}
                 className="bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive border-destructive/30 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <LogOut className="mr-2 h-4 w-4" />
@@ -110,93 +59,26 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-xl ${stat.bgColor}`}>
-                      <stat.icon
-                        className={`h-6 w-6 ${stat.color}`}
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        {stat.title}
-                      </p>
-                      <p className="text-2xl font-bold">{stat.value}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {stats.map(stat => (
+            <Card key={stat.id} className="p-4">
+              <h2 className="text-lg font-semibold">{stat.title}</h2>
+              <p className="text-2xl">{stat.value}</p>
+            </Card>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <Card className="h-full hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center text-xl">
-                  <Calendar className="mr-2 h-5 w-5 text-primary" />
-                  Sessions à venir
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentGames.map((game) => (
-                    <div
-                      key={game.title}
-                      className="flex items-center justify-between p-4 rounded-xl hover:shadow-md transition-all duration-300"
-                      style={{
-                        background: `linear-gradient(135deg, ${game.color} 0%, white 100%)`,
-                      }}
-                    >
-                      <div>
-                        <h3 className="font-medium">{game.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {game.date} • {game.participants} participants
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm" className="shadow-sm">
-                        Voir
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <Card className="h-full hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center text-xl">
-                  <BarChart2 className="mr-2 h-5 w-5 text-primary" />
-                  Performance des jeux
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  Graphique des performances
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+        <Card className="p-4">
+          <h2 className="text-lg font-semibold">Jeux récents</h2>
+          <ul className="space-y-2">
+            {recentGames.map(game => (
+              <li key={game.id} className="flex justify-between">
+                <span>{game.title}</span>
+                <span>{game.date}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
       </div>
     </div>
   );

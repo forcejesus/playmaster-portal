@@ -1,29 +1,24 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const { login, isLoading } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email && password) {
-      toast.success("Connexion réussie");
-      navigate("/dashboard");
-    } else {
-      toast.error("Veuillez remplir tous les champs");
+      await login(email, password);
     }
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* Image Section */}
       <div className="hidden lg:flex lg:w-1/2 bg-cover bg-center" style={{
         backgroundImage: `url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=2000&q=80')`,
         backgroundSize: 'cover'
@@ -36,7 +31,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Login Form Section */}
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-2 text-center">
@@ -75,8 +69,19 @@ const Login = () => {
                   className="border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300"
                 />
               </div>
-              <Button type="submit" className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
-                Se connecter
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connexion en cours...
+                  </>
+                ) : (
+                  'Se connecter'
+                )}
               </Button>
             </form>
           </CardContent>
