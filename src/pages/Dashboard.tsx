@@ -15,12 +15,13 @@ import {
   Users,
   HelpCircle,
   Clock,
-  ChevronRight
+  ChevronRight,
+  Trash2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Game } from "@/types/game";
 import { useState } from "react";
@@ -30,11 +31,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ImageLoader } from "@/components/ui/image-loader";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const { logout, user } = useAuth();
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: gamesData, isLoading } = useQuery({
     queryKey: ['games'],
@@ -43,6 +57,17 @@ const Dashboard = () => {
       return response.data;
     }
   });
+
+  const handleDeleteGame = async (game: Game) => {
+    try {
+      await axios.delete(`http://kahoot.nos-apps.com/api/jeux/delete/${game._id}`);
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+      toast.success('Jeu supprimé avec succès');
+      setGameToDelete(null);
+    } catch (error) {
+      toast.error('Erreur lors de la suppression du jeu');
+    }
+  };
 
   const games = gamesData?.data || [];
 
@@ -161,29 +186,44 @@ const Dashboard = () => {
                       <TableRow 
                         key={game._id}
                         className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => setSelectedGame(game)}
                       >
-                        <TableCell className="font-medium">{game.titre}</TableCell>
-                        <TableCell>
+                        <TableCell 
+                          className="font-medium"
+                          onClick={() => setSelectedGame(game)}
+                        >
+                          {game.titre}
+                        </TableCell>
+                        <TableCell onClick={() => setSelectedGame(game)}>
                           <div className="flex items-center gap-2">
                             <HelpCircle className="h-4 w-4 text-muted-foreground" />
                             {game.questions.length}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell onClick={() => setSelectedGame(game)}>
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             {game.planification.length}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell onClick={() => setSelectedGame(game)}>
                           {new Date(game.date).toLocaleDateString('fr-FR', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
                           })}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive/90"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setGameToDelete(game);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                           <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         </TableCell>
                       </TableRow>
@@ -287,6 +327,26 @@ const Dashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!gameToDelete} onOpenChange={() => setGameToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce jeu ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Toutes les questions et planifications associées seront également supprimées.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => gameToDelete && handleDeleteGame(gameToDelete)}
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
