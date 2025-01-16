@@ -11,10 +11,10 @@ const Dashboard = () => {
   const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: games } = useQuery({
+  const { data: games, isLoading } = useQuery({
     queryKey: ['games'],
     queryFn: async () => {
-      const response = await axios.get(`${API_URL}/api/games`, {
+      const response = await axios.get<Game[]>(`${API_URL}/api/games`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -43,7 +43,11 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Tableau de bord</h1>
-      <GameList games={games} onDelete={setGameToDelete} />
+      <GameList 
+        games={games || []} 
+        isLoading={isLoading}
+        onDelete={setGameToDelete} 
+      />
       {gameToDelete && (
         <ConfirmDeleteDialog
           game={gameToDelete}
