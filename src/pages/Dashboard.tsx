@@ -19,20 +19,24 @@ const Dashboard = () => {
   const { data: games, isLoading } = useQuery({
     queryKey: ['games'],
     queryFn: async () => {
+      const token = localStorage.getItem('token');
+      console.log('Fetching games with token:', token);
       const response = await axios.get<Game[]>(`${API_URL}/api/jeux`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${token}`
         }
       });
+      console.log('Games response:', response.data);
       return response.data;
     }
   });
 
   const handleDeleteGame = async (game: Game) => {
     try {
+      const token = localStorage.getItem('token');
       await axios.delete(`${API_URL}/api/games/${game._id}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${token}`
         }
       });
 
