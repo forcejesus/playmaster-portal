@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { User, LoginResponse } from '@/types/auth';
 import { toast } from 'sonner';
