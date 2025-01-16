@@ -6,6 +6,7 @@ import { API_URL } from '@/config';
 import GameList from '@/components/GameList';
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
 import { useQueryClient } from '@tanstack/react-query';
+import { Game } from '@/types/game';
 
 const Dashboard = () => {
   const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
