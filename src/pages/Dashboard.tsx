@@ -65,14 +65,8 @@ const Dashboard = () => {
       // Fermer la boîte de dialogue de confirmation
       setGameToDelete(null);
       
-      // Mettre à jour le cache immédiatement
-      queryClient.setQueryData(['games'], (oldData: any) => ({
-        ...oldData,
-        data: oldData.data.filter((g: Game) => g._id !== game._id)
-      }));
-      
-      // Forcer un rafraîchissement complet des données
-      await queryClient.refetchQueries({ queryKey: ['games'] });
+      // Invalider et forcer le rafraîchissement des données
+      await queryClient.invalidateQueries({ queryKey: ['games'] });
       
       toast.success('Jeu supprimé avec succès');
     } catch (error) {
