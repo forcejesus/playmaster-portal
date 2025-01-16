@@ -30,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ImageLoader } from "@/components/ui/image-loader";
 
 const Dashboard = () => {
   const { logout, user } = useAuth();
@@ -214,10 +215,11 @@ const Dashboard = () => {
                           <div className="space-y-2">
                             <p>{question.libelle}</p>
                             {question.fichier && (
-                              <img 
+                              <ImageLoader 
                                 src={`http://kahoot.nos-apps.com/${question.fichier}`}
                                 alt="Question media"
                                 className="max-w-xs rounded-md"
+                                fallback="/placeholder.svg"
                               />
                             )}
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">

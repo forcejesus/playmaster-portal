@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Check, Plus } from "lucide-react";
+import { ImageLoader } from "@/components/ui/image-loader";
 
 interface GameSetupProps {
   gameTitle: string;
@@ -17,11 +18,13 @@ export const GameSetup = ({
   setGameCoverImage,
 }: GameSetupProps) => {
   const coverImageRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleCoverImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setGameCoverImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
@@ -54,10 +57,16 @@ export const GameSetup = ({
               className="hidden"
               accept="image/*"
             />
-            {gameCoverImage ? (
+            {previewUrl ? (
               <div className="text-green-600">
                 <Check className="w-8 h-8 mx-auto mb-2" />
-                <p>{gameCoverImage.name}</p>
+                <ImageLoader 
+                  src={previewUrl}
+                  alt="Cover preview"
+                  className="max-w-full h-32 object-cover rounded-md mx-auto"
+                  fallback="/placeholder.svg"
+                />
+                <p className="mt-2">{gameCoverImage?.name}</p>
               </div>
             ) : (
               <div className="text-primary">
