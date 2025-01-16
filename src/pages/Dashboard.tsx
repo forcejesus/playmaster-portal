@@ -1,34 +1,40 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Clock,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Plus,
-  BarChart2,
   LogOut,
+  Calendar,
   Users,
-  GamepadIcon,
-  TrendingUp,
-  Calendar
+  HelpCircle,
+  Clock
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { Game } from "@/types/game";
 
 const Dashboard = () => {
   const { logout, user } = useAuth();
 
-  const stats = [
-    { id: 1, title: "Jeux créés", value: 12, icon: GamepadIcon, color: "text-blue-500" },
-    { id: 2, title: "Utilisateurs", value: 150, icon: Users, color: "text-green-500" },
-    { id: 3, title: "Jeux joués", value: 300, icon: TrendingUp, color: "text-purple-500" },
-    { id: 4, title: "Cette semaine", value: "24 jeux", icon: Calendar, color: "text-orange-500" }
-  ];
+  const { data: gamesData, isLoading } = useQuery({
+    queryKey: ['games'],
+    queryFn: async () => {
+      const response = await axios.get('http://kahoot.nos-apps.com/api/jeux');
+      return response.data;
+    }
+  });
 
-  const recentGames = [
-    { id: 1, title: "Quiz Histoire", date: "2024-02-01", players: 25 },
-    { id: 2, title: "Mathématiques Avancées", date: "2024-02-02", players: 18 },
-    { id: 3, title: "Sciences Naturelles", date: "2024-02-03", players: 32 },
-  ];
+  const games = gamesData?.data || [];
 
   const container = {
     hidden: { opacity: 0 },
@@ -59,13 +65,13 @@ const Dashboard = () => {
               Tableau de bord
             </motion.h1>
             <motion.p variants={item} className="text-muted-foreground">
-              Bienvenue professeur, {user?.name} 👋
+              Bienvenue professeur, Levi 👋
             </motion.p>
           </div>
           <div className="flex items-center gap-4">
             <motion.div variants={item}>
               <Link to="/quiz-creator">
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button className="bg-primary hover:bg-primary/90">
                   <Plus className="mr-2 h-4 w-4" /> Nouveau jeu
                 </Button>
               </Link>
@@ -74,7 +80,7 @@ const Dashboard = () => {
               <Button
                 variant="outline"
                 onClick={logout}
-                className="bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive border-destructive/30 shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-destructive/10 hover:bg-destructive/20 text-destructive"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Déconnexion
@@ -83,62 +89,89 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <motion.div 
-          variants={item}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          {stats.map(stat => (
-            <Card key={stat.id} className="border-none shadow-lg hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {stat.title}
-                    </p>
-                    <h3 className="text-2xl font-bold mt-2">
-                      {stat.value}
-                    </h3>
-                  </div>
-                  <div className={`p-3 rounded-full bg-card ${stat.color}`}>
-                    <stat.icon className="w-5 h-5" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
-
         <motion.div variants={item}>
-          <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-xl font-semibold">Jeux récents</CardTitle>
+              <CardTitle>Liste des jeux</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentGames.map(game => (
-                  <div
-                    key={game.id}
-                    className="flex items-center justify-between p-4 rounded-lg bg-background/50 hover:bg-background/80 transition-all duration-300"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="p-2 rounded-full bg-primary/10">
-                        <GamepadIcon className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{game.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(game.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Users className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {game.players} joueurs
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              {isLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Titre</TableHead>
+                      <TableHead>Questions</TableHead>
+                      <TableHead>Planifications</TableHead>
+                      <TableHead>Date de création</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {games.map((game: Game) => (
+                      <TableRow key={game._id}>
+                        <TableCell className="font-medium">{game.titre}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                            {game.questions.length}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            {game.planification.length}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(game.date).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total des jeux</CardTitle>
+              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{games.length}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Planifications actives</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {games.reduce((acc, game) => acc + game.planification.filter(p => p.statut === "en cours").length, 0)}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total participants</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {games.reduce((acc, game) => acc + game.planification.reduce((pacc, p) => pacc + p.participants.length, 0), 0)}
               </div>
             </CardContent>
           </Card>
