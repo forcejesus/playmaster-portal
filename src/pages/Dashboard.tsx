@@ -6,10 +6,15 @@ import { Game } from '@/types/game';
 import { API_URL } from '@/config';
 import GameList from '@/components/GameList';
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 
 const Dashboard = () => {
   const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
   const queryClient = useQueryClient();
+  const { logout } = useAuth();
 
   const { data: games, isLoading } = useQuery({
     queryKey: ['games'],
@@ -42,7 +47,20 @@ const Dashboard = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Tableau de bord</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Tableau de bord</h1>
+        <div className="flex gap-4">
+          <Link to="/quiz-creator">
+            <Button>
+              <Plus className="mr-2" />
+              Créer un quiz
+            </Button>
+          </Link>
+          <Button variant="outline" onClick={logout}>
+            Déconnexion
+          </Button>
+        </div>
+      </div>
       <GameList 
         games={games || []} 
         isLoading={isLoading}
