@@ -61,10 +61,10 @@ const Dashboard = () => {
   const handleDeleteGame = async (game: Game) => {
     try {
       await axios.delete(`http://kahoot.nos-apps.com/api/jeux/delete/${game._id}`);
-      // Invalidate and refetch games query to update both list and statistics
-      await queryClient.invalidateQueries({ queryKey: ['games'] });
-      toast.success('Jeu supprimé avec succès');
       setGameToDelete(null);
+      // Force refetch the data immediately
+      await queryClient.refetchQueries({ queryKey: ['games'] });
+      toast.success('Jeu supprimé avec succès');
     } catch (error) {
       console.error('Error deleting game:', error);
       toast.error('Erreur lors de la suppression du jeu');
