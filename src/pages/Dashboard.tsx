@@ -61,16 +61,18 @@ const Dashboard = () => {
   const handleDeleteGame = async (game: Game) => {
     try {
       await axios.delete(`http://kahoot.nos-apps.com/api/jeux/delete/${game._id}`);
+      
+      // Fermer la boîte de dialogue de confirmation
       setGameToDelete(null);
       
-      // Immédiatement mettre à jour le cache avec les données filtrées
+      // Mettre à jour le cache immédiatement
       queryClient.setQueryData(['games'], (oldData: any) => ({
         ...oldData,
         data: oldData.data.filter((g: Game) => g._id !== game._id)
       }));
       
-      // Ensuite, refetch en arrière-plan pour s'assurer que tout est synchronisé
-      queryClient.invalidateQueries({ queryKey: ['games'] });
+      // Forcer un rafraîchissement complet des données
+      await queryClient.refetchQueries({ queryKey: ['games'] });
       
       toast.success('Jeu supprimé avec succès');
     } catch (error) {
