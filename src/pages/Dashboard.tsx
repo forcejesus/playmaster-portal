@@ -14,7 +14,7 @@ const Dashboard = () => {
   const { data: games, isLoading } = useQuery({
     queryKey: ['games'],
     queryFn: async () => {
-      const response = await axios.get<Game[]>(`${API_URL}/api/games`, {
+      const response = await axios.get<Game[]>(`${API_URL}/api/jeux`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
