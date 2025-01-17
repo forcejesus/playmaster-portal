@@ -98,7 +98,7 @@ const GameDetail = () => {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="font-semibold">Créé par:</p>
-              <p>{game.createdBy.name}</p>
+              <p>{game.createdBy?.name || "Utilisateur inconnu"}</p>
             </div>
             <div>
               <p className="font-semibold">Date de création:</p>
@@ -110,11 +110,11 @@ const GameDetail = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Questions ({game.questions.length})</CardTitle>
+          <CardTitle>Questions ({game.questions?.length || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {game.questions.map((question, index) => (
+            {game.questions?.map((question, index) => (
               <Card key={question._id}>
                 <CardHeader>
                   <CardTitle className="text-lg">
@@ -176,7 +176,7 @@ const GameDetail = () => {
                       </div>
                       <div>
                         <p className="font-semibold">Participants:</p>
-                        <p>{plan.participants.length} / {plan.limite_participant}</p>
+                        <p>{plan.participants?.length || 0} / {plan.limite_participant}</p>
                       </div>
                     </div>
                   </CardContent>
