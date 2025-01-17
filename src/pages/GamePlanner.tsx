@@ -23,11 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Loader2, Calendar, Users, Clock, Lock, Unlock } from "lucide-react";
+import { ChevronLeft, Calendar, Users, Clock, Lock, Unlock, Loader2 } from "lucide-react";
 import { Game } from "@/types/game";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import Navbar from "@/components/Navbar";
 
 const planningSchema = z.object({
   jeu: z.string().min(1, "Veuillez sélectionner un jeu"),
@@ -111,23 +110,27 @@ const GamePlanner = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container mx-auto py-6 max-w-2xl">
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/dashboard")}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Retour
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Planifier un jeu</h1>
-            <p className="text-muted-foreground">Créez une nouvelle session de jeu planifiée</p>
+      <nav className="border-b bg-card">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate('/dashboard')}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg font-semibold">Planifier un jeu</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">
+              Créer une nouvelle planification
+            </p>
           </div>
         </div>
+      </nav>
 
+      <div className="container mx-auto p-6 space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Détails de la planification</CardTitle>
