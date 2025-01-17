@@ -94,7 +94,7 @@ const Dashboard = () => {
             </motion.div>
             <motion.div variants={item}>
               <Link to="/game-planner">
-                <Button className="bg-secondary hover:bg-secondary/90">
+                <Button variant="secondary" className="bg-secondary hover:bg-secondary/90">
                   <CalendarPlus className="mr-2 h-4 w-4" /> Planifier un jeu
                 </Button>
               </Link>
