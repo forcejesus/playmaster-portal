@@ -18,7 +18,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -35,6 +35,7 @@ import { ImageLoader } from "@/components/ui/image-loader";
 const Dashboard = () => {
   const { logout, user } = useAuth();
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const navigate = useNavigate();
 
   const { data: gamesData, isLoading } = useQuery({
     queryKey: ['games'],
@@ -59,6 +60,10 @@ const Dashboard = () => {
   const item = {
     hidden: { y: 20, opacity: 0 },
     show: { y: 0, opacity: 1 }
+  };
+
+  const handleRowClick = (gameId: string) => {
+    navigate(`/game/${gameId}`);
   };
 
   return (
@@ -161,7 +166,7 @@ const Dashboard = () => {
                       <TableRow 
                         key={game._id}
                         className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => setSelectedGame(game)}
+                        onClick={() => handleRowClick(game._id)}
                       >
                         <TableCell className="font-medium">{game.titre}</TableCell>
                         <TableCell>
@@ -194,99 +199,99 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </motion.div>
-      </motion.div>
 
-      <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedGame?.titre}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-6">
-            {selectedGame?.questions.length > 0 ? (
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Questions</h3>
-                <div className="space-y-4">
-                  {selectedGame.questions.map((question, index) => (
-                    <Card key={question._id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-4">
-                          <span className="text-muted-foreground">Q{index + 1}.</span>
-                          <div className="space-y-2">
-                            <p>{question.libelle}</p>
-                            {question.fichier && (
-                              <ImageLoader 
-                                src={`http://kahoot.nos-apps.com/${question.fichier}`}
-                                alt="Question media"
-                                className="max-w-xs rounded-md"
-                                fallback="/placeholder.svg"
-                              />
-                            )}
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Clock className="h-4 w-4" />
-                              <span>{question.temps} secondes</span>
+        <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedGame?.titre}</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {selectedGame?.questions.length > 0 ? (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Questions</h3>
+                  <div className="space-y-4">
+                    {selectedGame.questions.map((question, index) => (
+                      <Card key={question._id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-4">
+                            <span className="text-muted-foreground">Q{index + 1}.</span>
+                            <div className="space-y-2">
+                              <p>{question.libelle}</p>
+                              {question.fichier && (
+                                <ImageLoader 
+                                  src={`http://kahoot.nos-apps.com/${question.fichier}`}
+                                  alt="Question media"
+                                  className="max-w-xs rounded-md"
+                                  fallback="/placeholder.svg"
+                                />
+                              )}
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Clock className="h-4 w-4" />
+                                <span>{question.temps} secondes</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-4">
-                Aucune question n'a encore été ajoutée à ce jeu.
-              </p>
-            )}
+              ) : (
+                <p className="text-muted-foreground text-center py-4">
+                  Aucune question n'a encore été ajoutée à ce jeu.
+                </p>
+              )}
 
-            {selectedGame?.planification.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Planifications</h3>
-                <div className="space-y-4">
-                  {selectedGame.planification.map((plan) => (
-                    <Card key={plan._id}>
-                      <CardContent className="p-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">PIN</p>
-                            <p className="font-semibold">{plan.pin}</p>
+              {selectedGame?.planification.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Planifications</h3>
+                  <div className="space-y-4">
+                    {selectedGame.planification.map((plan) => (
+                      <Card key={plan._id}>
+                        <CardContent className="p-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-muted-foreground">PIN</p>
+                              <p className="font-semibold">{plan.pin}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Statut</p>
+                              <p className="font-semibold capitalize">{plan.statut}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Période</p>
+                              <p className="font-semibold">
+                                {plan.date_debut} - {plan.date_fin}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Horaires</p>
+                              <p className="font-semibold">
+                                {plan.heure_debut} - {plan.heure_fin}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Participants</p>
+                              <p className="font-semibold">
+                                {plan.participants.length} / {plan.limite_participant}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Type</p>
+                              <p className="font-semibold capitalize">{plan.type}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Statut</p>
-                            <p className="font-semibold capitalize">{plan.statut}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Période</p>
-                            <p className="font-semibold">
-                              {plan.date_debut} - {plan.date_fin}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Horaires</p>
-                            <p className="font-semibold">
-                              {plan.heure_debut} - {plan.heure_fin}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Participants</p>
-                            <p className="font-semibold">
-                              {plan.participants.length} / {plan.limite_participant}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Type</p>
-                            <p className="font-semibold capitalize">{plan.type}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </motion.div>
     </div>
   );
 };

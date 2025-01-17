@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import QuizCreator from "./pages/QuizCreator";
+import GameDetail from "./pages/GameDetail";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <QuizCreator />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/game/:id"
+            element={
+              <ProtectedRoute>
+                <GameDetail />
               </ProtectedRoute>
             }
           />
