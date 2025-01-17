@@ -75,6 +75,7 @@ const GameDetail = () => {
     onSuccess: () => {
       toast.success("Planification supprimée avec succès");
       queryClient.invalidateQueries({ queryKey: ["games"] });
+      queryClient.invalidateQueries({ queryKey: ["games", id] });
     },
     meta: {
       onError: (error: any) => {
@@ -327,7 +328,3 @@ const GameDetail = () => {
       </div>
     </div>
   );
-
-};
-
-export default GameDetail;

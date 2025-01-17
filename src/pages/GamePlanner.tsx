@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,6 +13,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -23,8 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Users, Clock, Lock, Unlock } from "lucide-react";
 import { Game } from "@/types/game";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 const planningSchema = z.object({
   jeu: z.string().min(1, "Veuillez sélectionner un jeu"),
@@ -84,9 +86,7 @@ const GamePlanner = () => {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate both games and stats queries to update the dashboard
       queryClient.invalidateQueries({ queryKey: ["games"] });
-      queryClient.invalidateQueries({ queryKey: ["stats"] });
       toast.success("Planification créée avec succès");
       navigate("/dashboard");
     },
@@ -120,152 +120,201 @@ const GamePlanner = () => {
             <ArrowLeft className="h-4 w-4" />
             Retour
           </Button>
-          <h1 className="text-3xl font-bold">Planifier un jeu</h1>
+          <div>
+            <h1 className="text-3xl font-bold">Planifier un jeu</h1>
+            <p className="text-muted-foreground">Créez une nouvelle session de jeu planifiée</p>
+          </div>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="jeu"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sélectionner un jeu</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner un jeu" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {gamesResponse?.data.map((game) => (
-                        <SelectItem key={game._id} value={game._id}>
-                          {game.titre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <Card>
+          <CardHeader>
+            <CardTitle>Détails de la planification</CardTitle>
+            <CardDescription>
+              Configurez les paramètres de votre session de jeu
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="jeu"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sélectionner un jeu</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner un jeu" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {gamesResponse?.data.map((game) => (
+                            <SelectItem key={game._id} value={game._id}>
+                              {game.titre}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="date_debut"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date de début</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <Separator className="my-4" />
 
-              <FormField
-                control={form.control}
-                name="date_fin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date de fin</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="date_debut"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date de début</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input type="date" {...field} className="pl-10" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="heure_debut"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Heure de début</FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="date_fin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date de fin</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input type="date" {...field} className="pl-10" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="heure_fin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Heure de fin</FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                  <FormField
+                    control={form.control}
+                    name="heure_debut"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Heure de début</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input type="time" {...field} className="pl-10" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-              control={form.control}
-              name="limite_participant"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Limite de participants</FormLabel>
-                  <FormControl>
-                    <Input type="number" min="1" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <FormField
+                    control={form.control}
+                    name="heure_fin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Heure de fin</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input type="time" {...field} className="pl-10" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type de planification</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner le type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="attribuer">Attribuer</SelectItem>
-                      <SelectItem value="libre">Libre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <Separator className="my-4" />
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={createPlanning.isPending}
-            >
-              {createPlanning.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Création en cours...
-                </>
-              ) : (
-                "Créer la planification"
-              )}
-            </Button>
-          </form>
-        </Form>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="limite_participant"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Limite de participants</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input type="number" min="1" {...field} className="pl-10" />
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Nombre maximum de participants autorisés
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type de planification</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="pl-10">
+                              <div className="absolute left-3 top-2.5">
+                                {field.value === "attribuer" ? (
+                                  <Lock className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <Unlock className="h-4 w-4 text-muted-foreground" />
+                                )}
+                              </div>
+                              <SelectValue placeholder="Sélectionner le type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="attribuer">Attribuer</SelectItem>
+                            <SelectItem value="libre">Libre</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Attribuer: Accès restreint aux participants sélectionnés
+                          <br />
+                          Libre: Ouvert à tous les participants
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={createPlanning.isPending}
+                >
+                  {createPlanning.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Création en cours...
+                    </>
+                  ) : (
+                    "Créer la planification"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
