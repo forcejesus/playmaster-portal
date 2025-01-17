@@ -66,7 +66,7 @@ const GameDetail = () => {
         throw new Error("No token found");
       }
 
-      await axios.delete(`${API_URL}/api/delete/planification/${planningId}`, {
+      await axios.delete(`${API_URL}/api/planification/delete/${planningId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -327,6 +327,7 @@ const GameDetail = () => {
       </div>
     </div>
   );
+
 };
 
 export default GameDetail;
