@@ -8,6 +8,13 @@ import { Game } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import { Copy, Share, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const API_URL = "http://kahoot.nos-apps.com";
 
@@ -158,101 +165,107 @@ const GameDetail = () => {
           </CardContent>
         </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Questions ({game.questions?.length || 0})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {game.questions?.map((question, index) => (
-              <Card key={question._id}>
-                <CardHeader>
-                  <CardTitle className="text-lg">
-                    Question {index + 1}: {question.libelle}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <img 
-                    src={`${API_URL}/${question.fichier}`} 
-                    alt={question.libelle}
-                    className="w-full h-48 object-cover rounded-md mb-4"
-                  />
-                  <div className="space-y-2">
-                    <p><span className="font-medium">Temps:</span> {question.temps} secondes</p>
-                    <p><span className="font-medium">Type de fichier:</span> {question.type_fichier}</p>
-                    {question.limite_response && (
-                      <p className="text-yellow-600">Réponses limitées</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {game.planification && game.planification.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Planifications ({game.planification.length})</CardTitle>
+            <CardTitle>Questions ({game.questions?.length || 0})</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {game.planification.map((plan) => (
-                <Card key={plan._id}>
-                  <CardContent className="pt-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="col-span-2 flex items-center gap-2">
-                        <p className="font-semibold">PIN:</p>
-                        <p className="text-primary font-mono">{plan.pin}</p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleCopyPin(plan.pin)}
-                          className="ml-2"
-                        >
-                          <Copy className="w-4 h-4 mr-1" />
-                          Copier
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleSharePin(plan.pin)}
-                        >
-                          <Share className="w-4 h-4 mr-1" />
-                          Partager
-                        </Button>
-                      </div>
-                      <div>
-                        <p className="font-semibold">Statut:</p>
-                        <p className={plan.statut === "en cours" ? "text-green-600" : "text-yellow-600"}>
-                          {plan.statut}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">Période:</p>
-                        <p>{plan.date_debut} - {plan.date_fin}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">Horaires:</p>
-                        <p>{plan.heure_debut} - {plan.heure_fin}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">Type:</p>
-                        <p>{plan.type}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">Participants:</p>
-                        <p>{plan.participants?.length || 0} / {plan.limite_participant}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          <CardContent className="pt-6">
+            <Carousel className="w-full max-w-4xl mx-auto">
+              <CarouselContent>
+                {game.questions?.map((question, index) => (
+                  <CarouselItem key={question._id}>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">
+                          Question {index + 1}: {question.libelle}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <img 
+                          src={`${API_URL}/${question.fichier}`} 
+                          alt={question.libelle}
+                          className="w-full h-48 object-cover rounded-md mb-4"
+                        />
+                        <div className="space-y-2">
+                          <p><span className="font-medium">Temps:</span> {question.temps} secondes</p>
+                          <p><span className="font-medium">Type de fichier:</span> {question.type_fichier}</p>
+                          {question.limite_response && (
+                            <p className="text-yellow-600">Réponses limitées</p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </CardContent>
         </Card>
-      )}
+
+        {game.planification && game.planification.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Planifications ({game.planification.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {game.planification.map((plan) => (
+                  <Card key={plan._id}>
+                    <CardContent className="pt-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="col-span-2 flex items-center gap-2">
+                          <p className="font-semibold">PIN:</p>
+                          <p className="text-primary font-mono">{plan.pin}</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCopyPin(plan.pin)}
+                            className="ml-2"
+                          >
+                            <Copy className="w-4 h-4 mr-1" />
+                            Copier
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSharePin(plan.pin)}
+                          >
+                            <Share className="w-4 h-4 mr-1" />
+                            Partager
+                          </Button>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Statut:</p>
+                          <p className={plan.statut === "en cours" ? "text-green-600" : "text-yellow-600"}>
+                            {plan.statut}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Période:</p>
+                          <p>{plan.date_debut} - {plan.date_fin}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Horaires:</p>
+                          <p>{plan.heure_debut} - {plan.heure_fin}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Type:</p>
+                          <p>{plan.type}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Participants:</p>
+                          <p>{plan.participants?.length || 0} / {plan.limite_participant}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
