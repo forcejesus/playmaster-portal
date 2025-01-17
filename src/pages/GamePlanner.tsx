@@ -49,14 +49,14 @@ const GamePlanner = () => {
     },
   });
 
-  const { data: games, isLoading: isLoadingGames } = useQuery({
+  const { data: gamesResponse, isLoading: isLoadingGames } = useQuery({
     queryKey: ["games"],
     queryFn: async () => {
       const token = localStorage.getItem("token");
       const response = await axios.get("http://kahoot.nos-apps.com/api/jeux", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.data.data as Game[];
+      return response.data as { data: Game[] };
     },
   });
 
@@ -123,7 +123,7 @@ const GamePlanner = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {games?.map((game) => (
+                      {gamesResponse?.data.map((game) => (
                         <SelectItem key={game._id} value={game._id}>
                           {game.titre}
                         </SelectItem>
