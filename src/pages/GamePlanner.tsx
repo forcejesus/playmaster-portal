@@ -84,8 +84,9 @@ const GamePlanner = () => {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate and refetch games query to update the dashboard
+      // Invalidate both games and stats queries to update the dashboard
       queryClient.invalidateQueries({ queryKey: ["games"] });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
       toast.success("Planification créée avec succès");
       navigate("/dashboard");
     },
