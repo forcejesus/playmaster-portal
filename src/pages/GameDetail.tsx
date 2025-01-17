@@ -16,6 +16,7 @@ const GameDetail = () => {
     queryKey: ["game", id],
     queryFn: async () => {
       const response = await axios.get(`http://kahoot.nos-apps.com/api/jeux/${id}`);
+      console.log("Game data:", response.data); // Pour le débogage
       return response.data;
     },
   });
@@ -28,8 +29,16 @@ const GameDetail = () => {
     );
   }
 
-  const totalParticipants = game?.planification.reduce(
-    (acc: number, plan: any) => acc + plan.participants.length,
+  if (!game) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Aucun jeu trouvé</p>
+      </div>
+    );
+  }
+
+  const totalParticipants = game?.planification?.reduce(
+    (acc: number, plan: any) => acc + (plan.participants?.length || 0),
     0
   );
 
@@ -64,7 +73,7 @@ const GameDetail = () => {
               </Button>
             </Link>
             <motion.h1 variants={item} className="text-3xl font-bold">
-              {game?.titre}
+              {game?.titre || "Détails du jeu"}
             </motion.h1>
           </div>
         </div>
@@ -76,7 +85,7 @@ const GameDetail = () => {
               <HelpCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{game?.questions.length}</div>
+              <div className="text-2xl font-bold">{game?.questions?.length || 0}</div>
             </CardContent>
           </Card>
 
@@ -86,7 +95,7 @@ const GameDetail = () => {
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{game?.planification.length}</div>
+              <div className="text-2xl font-bold">{game?.planification?.length || 0}</div>
             </CardContent>
           </Card>
 
@@ -107,7 +116,7 @@ const GameDetail = () => {
               <CardTitle>Questions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {game?.questions.map((question: any, index: number) => (
+              {game?.questions?.map((question: any, index: number) => (
                 <div key={question._id} className="p-4 rounded-lg border">
                   <div className="flex items-start gap-4">
                     <span className="text-muted-foreground">Q{index + 1}.</span>
@@ -137,7 +146,7 @@ const GameDetail = () => {
               <CardTitle>Planifications</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {game?.planification.map((plan: any) => (
+              {game?.planification?.map((plan: any) => (
                 <div key={plan._id} className="p-4 rounded-lg border">
                   <div className="space-y-2">
                     <div className="grid grid-cols-2 gap-4">
@@ -158,7 +167,7 @@ const GameDetail = () => {
                       <div>
                         <p className="text-sm text-muted-foreground">Participants</p>
                         <p className="font-semibold">
-                          {plan.participants.length} / {plan.limite_participant}
+                          {plan.participants?.length || 0} / {plan.limite_participant}
                         </p>
                       </div>
                     </div>
