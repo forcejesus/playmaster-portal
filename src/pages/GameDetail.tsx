@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Game } from "@/types/game";
 import { Button } from "@/components/ui/button";
-import { Copy, Share, ChevronLeft } from "lucide-react";
+import { Copy, Share, ChevronLeft, Trash2 } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -26,6 +26,7 @@ interface GamesResponse {
 const GameDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: game, isLoading, error } = useQuery({
     queryKey: ["games", id],
@@ -58,6 +59,37 @@ const GameDetail = () => {
     },
   });
 
+  const deletePlanningMutation = useMutation({
+    mutationFn: async (planningId: string) => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      await axios.delete(`${API_URL}/api/delete/planification/${planningId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Planification supprimée avec succès");
+      queryClient.invalidateQueries({ queryKey: ["games"] });
+    },
+    meta: {
+      onError: (error: any) => {
+        console.error("Error deleting planning:", error);
+        toast.error(error.response?.data?.message || "Erreur lors de la suppression de la planification");
+      },
+    },
+  });
+
+  const handleDeletePlanning = async (planningId: string) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette planification ?")) {
+      await deletePlanningMutation.mutate(planningId);
+    }
+  };
+
   const handleCopyPin = async (pin: string) => {
     try {
       await navigator.clipboard.writeText(pin);
@@ -85,7 +117,6 @@ const GameDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation Bar - Always visible */}
       <nav className="border-b bg-card">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -106,11 +137,9 @@ const GameDetail = () => {
         </div>
       </nav>
 
-      {/* Content with loading state */}
       <div className="container mx-auto p-6 space-y-6">
         {isLoading ? (
           <>
-            {/* Game info skeleton */}
             <Card>
               <CardHeader>
                 <Skeleton className="h-8 w-3/4" />
@@ -124,7 +153,6 @@ const GameDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Questions skeleton */}
             <Card>
               <CardHeader>
                 <Skeleton className="h-8 w-1/4" />
@@ -140,7 +168,6 @@ const GameDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Planifications skeleton */}
             <Card>
               <CardHeader>
                 <Skeleton className="h-8 w-1/3" />
@@ -234,25 +261,35 @@ const GameDetail = () => {
                       <Card key={plan._id}>
                         <CardContent className="pt-4">
                           <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div className="col-span-2 flex items-center gap-2">
-                              <p className="font-semibold">PIN:</p>
-                              <p className="text-primary font-mono">{plan.pin}</p>
+                            <div className="col-span-2 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold">PIN:</p>
+                                <p className="text-primary font-mono">{plan.pin}</p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleCopyPin(plan.pin)}
+                                  className="ml-2"
+                                >
+                                  <Copy className="w-4 h-4 mr-1" />
+                                  Copier
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleSharePin(plan.pin)}
+                                >
+                                  <Share className="w-4 h-4 mr-1" />
+                                  Partager
+                                </Button>
+                              </div>
                               <Button
-                                variant="outline"
+                                variant="destructive"
                                 size="sm"
-                                onClick={() => handleCopyPin(plan.pin)}
-                                className="ml-2"
+                                onClick={() => handleDeletePlanning(plan._id)}
                               >
-                                <Copy className="w-4 h-4 mr-1" />
-                                Copier
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleSharePin(plan.pin)}
-                              >
-                                <Share className="w-4 h-4 mr-1" />
-                                Partager
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Supprimer
                               </Button>
                             </div>
                             <div>
