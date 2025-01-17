@@ -4,42 +4,41 @@ import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { Game } from "@/types/game";
 
 const API_URL = "http://kahoot.nos-apps.com";
 
-interface Game {
-  _id: string;
-  titre: string;
-  description: string;
-  questions: Array<{
-    _id: string;
-    titre: string;
-    reponses: string[];
-    bonneReponse: string;
-  }>;
-  createdAt: string;
-  updatedAt: string;
+interface GamesResponse {
+  success: boolean;
+  message: string;
+  data: Game[];
 }
 
 const GameDetail = () => {
   const { id } = useParams<{ id: string }>();
 
   const { data: game, isLoading, error } = useQuery({
-    queryKey: ["game", id],
+    queryKey: ["games"],
     queryFn: async () => {
-      console.log("Fetching game with ID:", id);
+      console.log("Fetching all games to find game with ID:", id);
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No token found");
       }
 
-      const response = await axios.get<Game>(`${API_URL}/api/jeux/${id}`, {
+      const response = await axios.get<GamesResponse>(`${API_URL}/api/jeux`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Game data received:", response.data);
-      return response.data;
+
+      const foundGame = response.data.data.find((game) => game._id === id);
+      if (!foundGame) {
+        throw new Error("Game not found");
+      }
+
+      console.log("Found game:", foundGame);
+      return foundGame;
     },
     retry: 1,
     meta: {
@@ -91,13 +90,27 @@ const GameDetail = () => {
           <CardTitle>{game.titre}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">{game.description}</p>
+          <img 
+            src={`${API_URL}/${game.image}`} 
+            alt={game.titre}
+            className="w-full h-48 object-cover rounded-md mb-4"
+          />
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="font-semibold">Créé par:</p>
+              <p>{game.createdBy.name}</p>
+            </div>
+            <div>
+              <p className="font-semibold">Date de création:</p>
+              <p>{new Date(game.date).toLocaleDateString()}</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Questions</CardTitle>
+          <CardTitle>Questions ({game.questions.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -105,27 +118,21 @@ const GameDetail = () => {
               <Card key={question._id}>
                 <CardHeader>
                   <CardTitle className="text-lg">
-                    Question {index + 1}: {question.titre}
+                    Question {index + 1}: {question.libelle}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <img 
+                    src={`${API_URL}/${question.fichier}`} 
+                    alt={question.libelle}
+                    className="w-full h-48 object-cover rounded-md mb-4"
+                  />
                   <div className="space-y-2">
-                    <h4 className="font-medium">Réponses possibles:</h4>
-                    <ul className="list-disc pl-6">
-                      {question.reponses.map((reponse, rIndex) => (
-                        <li
-                          key={rIndex}
-                          className={
-                            reponse === question.bonneReponse
-                              ? "text-primary font-medium"
-                              : ""
-                          }
-                        >
-                          {reponse}
-                          {reponse === question.bonneReponse && " (Bonne réponse)"}
-                        </li>
-                      ))}
-                    </ul>
+                    <p><span className="font-medium">Temps:</span> {question.temps} secondes</p>
+                    <p><span className="font-medium">Type de fichier:</span> {question.type_fichier}</p>
+                    {question.limite_response && (
+                      <p className="text-yellow-600">Réponses limitées</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -133,6 +140,52 @@ const GameDetail = () => {
           </div>
         </CardContent>
       </Card>
+
+      {game.planification && game.planification.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Planifications ({game.planification.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {game.planification.map((plan) => (
+                <Card key={plan._id}>
+                  <CardContent className="pt-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold">PIN:</p>
+                        <p className="text-primary">{plan.pin}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">Statut:</p>
+                        <p className={plan.statut === "en cours" ? "text-green-600" : "text-yellow-600"}>
+                          {plan.statut}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">Période:</p>
+                        <p>{plan.date_debut} - {plan.date_fin}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">Horaires:</p>
+                        <p>{plan.heure_debut} - {plan.heure_fin}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">Type:</p>
+                        <p>{plan.type}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">Participants:</p>
+                        <p>{plan.participants.length} / {plan.limite_participant}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
