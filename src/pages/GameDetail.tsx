@@ -1,183 +1,136 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Game } from "@/types/game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { ChevronLeft, Users, HelpCircle, Clock, Calendar } from "lucide-react";
-import { motion } from "framer-motion";
-import { ImageLoader } from "@/components/ui/image-loader";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+
+const API_URL = "http://kahoot.nos-apps.com";
+
+interface Game {
+  _id: string;
+  titre: string;
+  description: string;
+  questions: Array<{
+    _id: string;
+    titre: string;
+    reponses: string[];
+    bonneReponse: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const GameDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
-  const { data: game, isLoading } = useQuery({
+  const { data: game, isLoading, error } = useQuery({
     queryKey: ["game", id],
     queryFn: async () => {
-      const response = await axios.get(`http://kahoot.nos-apps.com/api/jeux/${id}`);
-      console.log("Game data:", response.data); // Pour le débogage
+      console.log("Fetching game with ID:", id);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const response = await axios.get<Game>(`${API_URL}/api/jeux/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("Game data received:", response.data);
       return response.data;
+    },
+    retry: 1,
+    onError: (error: any) => {
+      console.error("Error fetching game:", error);
+      toast.error(error.response?.data?.message || "Erreur lors du chargement du jeu");
     },
   });
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="container mx-auto p-6 space-y-4">
+        <Skeleton className="h-12 w-3/4" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-48 w-full" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <p className="text-destructive">Une erreur est survenue lors du chargement du jeu.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!game) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>Aucun jeu trouvé</p>
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="pt-6">
+            <p>Aucun jeu trouvé</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  const totalParticipants = game?.planification?.reduce(
-    (acc: number, plan: any) => acc + (plan.participants?.length || 0),
-    0
-  );
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    show: { y: 0, opacity: 1 },
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="max-w-7xl mx-auto space-y-6"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard">
-              <Button variant="outline" size="icon">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <motion.h1 variants={item} className="text-3xl font-bold">
-              {game?.titre || "Détails du jeu"}
-            </motion.h1>
-          </div>
-        </div>
+    <div className="container mx-auto p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>{game.titre}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">{game.description}</p>
+        </CardContent>
+      </Card>
 
-        <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Questions</CardTitle>
-              <HelpCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{game?.questions?.length || 0}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Planifications</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{game?.planification?.length || 0}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total participants</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalParticipants}</div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Questions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {game?.questions?.map((question: any, index: number) => (
-                <div key={question._id} className="p-4 rounded-lg border">
-                  <div className="flex items-start gap-4">
-                    <span className="text-muted-foreground">Q{index + 1}.</span>
-                    <div className="space-y-2 flex-1">
-                      <p>{question.libelle}</p>
-                      {question.fichier && (
-                        <ImageLoader
-                          src={`http://kahoot.nos-apps.com/${question.fichier}`}
-                          alt="Question media"
-                          className="max-w-xs rounded-md"
-                          fallback="/placeholder.svg"
-                        />
-                      )}
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>{question.temps} secondes</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Planifications</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {game?.planification?.map((plan: any) => (
-                <div key={plan._id} className="p-4 rounded-lg border">
+      <Card>
+        <CardHeader>
+          <CardTitle>Questions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {game.questions.map((question, index) => (
+              <Card key={question._id}>
+                <CardHeader>
+                  <CardTitle className="text-lg">
+                    Question {index + 1}: {question.titre}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">PIN</p>
-                        <p className="font-semibold">{plan.pin}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Statut</p>
-                        <p className="font-semibold capitalize">{plan.statut}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Période</p>
-                        <p className="font-semibold">
-                          {plan.date_debut} - {plan.date_fin}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Participants</p>
-                        <p className="font-semibold">
-                          {plan.participants?.length || 0} / {plan.limite_participant}
-                        </p>
-                      </div>
-                    </div>
+                    <h4 className="font-medium">Réponses possibles:</h4>
+                    <ul className="list-disc pl-6">
+                      {question.reponses.map((reponse, rIndex) => (
+                        <li
+                          key={rIndex}
+                          className={
+                            reponse === question.bonneReponse
+                              ? "text-primary font-medium"
+                              : ""
+                          }
+                        >
+                          {reponse}
+                          {reponse === question.bonneReponse && " (Bonne réponse)"}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
