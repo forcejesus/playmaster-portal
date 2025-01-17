@@ -28,7 +28,7 @@ const GameDetail = () => {
   const navigate = useNavigate();
 
   const { data: game, isLoading, error } = useQuery({
-    queryKey: ["games"],
+    queryKey: ["games", id],
     queryFn: async () => {
       console.log("Fetching all games to find game with ID:", id);
       const token = localStorage.getItem("token");
