@@ -42,9 +42,11 @@ const GameDetail = () => {
       return response.data;
     },
     retry: 1,
-    onError: (error: any) => {
-      console.error("Error fetching game:", error);
-      toast.error(error.response?.data?.message || "Erreur lors du chargement du jeu");
+    meta: {
+      onError: (error: any) => {
+        console.error("Error fetching game:", error);
+        toast.error(error.response?.data?.message || "Erreur lors du chargement du jeu");
+      },
     },
   });
 
