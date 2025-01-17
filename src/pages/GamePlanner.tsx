@@ -27,6 +27,7 @@ import { ArrowLeft, Loader2, Calendar, Users, Clock, Lock, Unlock } from "lucide
 import { Game } from "@/types/game";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import Navbar from "@/components/Navbar";
 
 const planningSchema = z.object({
   jeu: z.string().min(1, "Veuillez sélectionner un jeu"),
@@ -109,8 +110,9 @@ const GamePlanner = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container mx-auto py-6 max-w-2xl">
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="ghost"
