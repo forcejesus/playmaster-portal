@@ -44,6 +44,11 @@ const GamePlanner = () => {
   const form = useForm<PlanningForm>({
     resolver: zodResolver(planningSchema),
     defaultValues: {
+      jeu: "",
+      date_debut: "",
+      date_fin: "",
+      heure_debut: "",
+      heure_fin: "",
       type: "attribuer",
       limite_participant: 3,
     },
@@ -82,13 +87,22 @@ const GamePlanner = () => {
       navigate("/dashboard");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Une erreur est survenue");
+      const errorMessage = error.response?.data?.message || "Une erreur est survenue lors de la création de la planification";
+      toast.error(errorMessage);
     },
   });
 
   const onSubmit = (data: PlanningForm) => {
     createPlanning.mutate(data);
   };
+
+  if (isLoadingGames) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
