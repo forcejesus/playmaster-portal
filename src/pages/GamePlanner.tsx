@@ -32,7 +32,7 @@ const planningSchema = z.object({
   date_fin: z.string().min(1, "La date de fin est requise"),
   heure_debut: z.string().min(1, "L'heure de début est requise"),
   heure_fin: z.string().min(1, "L'heure de fin est requise"),
-  limite_participant: z.string().transform(Number),
+  limite_participant: z.coerce.number().min(1, "Au moins 1 participant est requis"),
   type: z.enum(["attribuer", "libre"]),
 });
 
@@ -45,7 +45,7 @@ const GamePlanner = () => {
     resolver: zodResolver(planningSchema),
     defaultValues: {
       type: "attribuer",
-      limite_participant: "3",
+      limite_participant: 3,
     },
   });
 
