@@ -6,7 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Game } from "@/types/game";
 import { Button } from "@/components/ui/button";
-import { Copy, Share } from "lucide-react";
+import { Copy, Share, ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://kahoot.nos-apps.com";
 
@@ -18,6 +19,7 @@ interface GamesResponse {
 
 const GameDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const { data: game, isLoading, error } = useQuery({
     queryKey: ["games"],
@@ -110,29 +112,51 @@ const GameDetail = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{game.titre}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <img 
-            src={`${API_URL}/${game.image}`} 
-            alt={game.titre}
-            className="w-full h-48 object-cover rounded-md mb-4"
-          />
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="font-semibold">Créé par:</p>
-              <p>{game.createdBy?.name || "Utilisateur inconnu"}</p>
-            </div>
-            <div>
-              <p className="font-semibold">Date de création:</p>
-              <p>{new Date(game.date).toLocaleDateString()}</p>
-            </div>
+    <div className="min-h-screen bg-background">
+      {/* Navigation Bar */}
+      <nav className="border-b bg-card">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate('/dashboard')}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg font-semibold">{game.titre}</h1>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">
+              Créé par {game.createdBy?.name || "Utilisateur inconnu"}
+            </p>
+          </div>
+        </div>
+      </nav>
+
+      <div className="container mx-auto p-6 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{game.titre}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <img 
+              src={`${API_URL}/${game.image}`} 
+              alt={game.titre}
+              className="w-full h-48 object-cover rounded-md mb-4"
+            />
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="font-semibold">Créé par:</p>
+                <p>{game.createdBy?.name || "Utilisateur inconnu"}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Date de création:</p>
+                <p>{new Date(game.date).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
       <Card>
         <CardHeader>
@@ -229,6 +253,7 @@ const GameDetail = () => {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 };
