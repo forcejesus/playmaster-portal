@@ -328,3 +328,6 @@ const GameDetail = () => {
       </div>
     </div>
   );
+};
+
+export default GameDetail;
