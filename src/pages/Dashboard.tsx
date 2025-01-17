@@ -81,7 +81,7 @@ const Dashboard = () => {
               Tableau de bord
             </motion.h1>
             <motion.p variants={item} className="text-muted-foreground">
-              Bienvenue professeur, Levi 👋
+              Bienvenue professeur, {user?.name || 'Levi'} 👋
             </motion.p>
           </div>
           <div className="flex items-center gap-4">
