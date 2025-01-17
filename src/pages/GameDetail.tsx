@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Game } from "@/types/game";
+import { Button } from "@/components/ui/button";
+import { Copy, Share } from "lucide-react";
 
 const API_URL = "http://kahoot.nos-apps.com";
 
@@ -40,7 +42,6 @@ const GameDetail = () => {
       console.log("Found game:", foundGame);
       return foundGame;
     },
-    retry: 1,
     meta: {
       onError: (error: any) => {
         console.error("Error fetching game:", error);
@@ -48,6 +49,31 @@ const GameDetail = () => {
       },
     },
   });
+
+  const handleCopyPin = async (pin: string) => {
+    try {
+      await navigator.clipboard.writeText(pin);
+      toast.success("PIN copié !");
+    } catch (err) {
+      toast.error("Erreur lors de la copie du PIN");
+    }
+  };
+
+  const handleSharePin = async (pin: string) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'PIN du jeu',
+          text: `Rejoignez le jeu avec le PIN: ${pin}`,
+        });
+      } else {
+        await navigator.clipboard.writeText(pin);
+        toast.success("PIN copié car le partage n'est pas disponible sur votre appareil");
+      }
+    } catch (err) {
+      toast.error("Erreur lors du partage du PIN");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -152,9 +178,26 @@ const GameDetail = () => {
                 <Card key={plan._id}>
                   <CardContent className="pt-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
+                      <div className="col-span-2 flex items-center gap-2">
                         <p className="font-semibold">PIN:</p>
-                        <p className="text-primary">{plan.pin}</p>
+                        <p className="text-primary font-mono">{plan.pin}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCopyPin(plan.pin)}
+                          className="ml-2"
+                        >
+                          <Copy className="w-4 h-4 mr-1" />
+                          Copier
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSharePin(plan.pin)}
+                        >
+                          <Share className="w-4 h-4 mr-1" />
+                          Partager
+                        </Button>
                       </div>
                       <div>
                         <p className="font-semibold">Statut:</p>
