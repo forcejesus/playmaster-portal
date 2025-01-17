@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import QuizCreator from "./pages/QuizCreator";
 import GameDetail from "./pages/GameDetail";
+import GamePlanner from "./pages/GamePlanner";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <GameDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/game-planner"
+            element={
+              <ProtectedRoute>
+                <GamePlanner />
               </ProtectedRoute>
             }
           />

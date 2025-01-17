@@ -15,7 +15,8 @@ import {
   Users,
   HelpCircle,
   Clock,
-  ChevronRight
+  ChevronRight,
+  CalendarPlus
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -88,6 +89,13 @@ const Dashboard = () => {
               <Link to="/quiz-creator">
                 <Button className="bg-primary hover:bg-primary/90">
                   <Plus className="mr-2 h-4 w-4" /> Nouveau jeu
+                </Button>
+              </Link>
+            </motion.div>
+            <motion.div variants={item}>
+              <Link to="/game-planner">
+                <Button className="bg-secondary hover:bg-secondary/90">
+                  <CalendarPlus className="mr-2 h-4 w-4" /> Planifier un jeu
                 </Button>
               </Link>
             </motion.div>
