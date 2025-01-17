@@ -35,7 +35,7 @@ const planningSchema = z.object({
   heure_debut: z.string().min(1, "L'heure de début est requise"),
   heure_fin: z.string().min(1, "L'heure de fin est requise"),
   limite_participant: z.coerce.number().min(1, "Au moins 1 participant est requis"),
-  type: z.enum(["attribuer", "libre"]),
+  type: z.enum(["attribuer", "live"]),
 });
 
 type PlanningForm = z.infer<typeof planningSchema>;
@@ -288,13 +288,13 @@ const GamePlanner = () => {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="attribuer">Attribuer</SelectItem>
-                            <SelectItem value="libre">Libre</SelectItem>
+                            <SelectItem value="live">Live</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormDescription>
                           Attribuer: Accès restreint aux participants sélectionnés
                           <br />
-                          Libre: Ouvert à tous les participants
+                          Live: Session en direct avec participation immédiate
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
