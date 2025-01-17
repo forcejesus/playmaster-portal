@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axios from "axios";
 import { z } from "zod";
@@ -40,6 +40,7 @@ type PlanningForm = z.infer<typeof planningSchema>;
 
 const GamePlanner = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const form = useForm<PlanningForm>({
     resolver: zodResolver(planningSchema),
@@ -83,6 +84,8 @@ const GamePlanner = () => {
       return response.data;
     },
     onSuccess: () => {
+      // Invalidate and refetch games query to update the dashboard
+      queryClient.invalidateQueries({ queryKey: ["games"] });
       toast.success("Planification créée avec succès");
       navigate("/dashboard");
     },
