@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { MediaUpload } from '@/components/quiz/MediaUpload';
 import { quizService } from '@/services/quizService';
-import { Question, Answer } from '@/types/quiz';
 
 const questionSchema = z.object({
   libelle: z.string().min(1, "Le libellé est requis"),
