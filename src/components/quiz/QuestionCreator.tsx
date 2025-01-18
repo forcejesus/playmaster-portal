@@ -15,7 +15,7 @@ import { quizService } from '@/services/quizService';
 
 const questionSchema = z.object({
   libelle: z.string().min(1, "Le libellé est requis"),
-  fichier: z.instanceof(File, { message: "Le fichier est requis" }),
+  fichier: z.any().optional(),
   type_fichier: z.string().min(1, "Le type de fichier est requis"),
   temps: z.number().min(1, "Le temps est requis"),
   limite_response: z.boolean(),
@@ -46,9 +46,12 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
   const form = useForm<z.infer<typeof questionSchema>>({
     resolver: zodResolver(questionSchema),
     defaultValues: {
+      libelle: "",
       temps: 30,
       limite_response: false,
-      type_fichier: "image"
+      type_fichier: "image",
+      typeQuestion: "",
+      point: "",
     }
   });
 
@@ -56,9 +59,17 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
     try {
       setIsLoading(true);
       const formData = new FormData();
+      
+      // Add all form values to FormData
       Object.entries(values).forEach(([key, value]) => {
-        formData.append(key, value.toString());
+        if (key === 'fichier' && value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, value.toString());
+        }
       });
+      
+      // Add game ID
       formData.append('jeu', gameId);
 
       await quizService.createQuestion(formData);
@@ -78,25 +89,6 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      form.setValue('fichier', file);
-    }
-  };
-
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files?.[0];
-    if (file) {
-      form.setValue('fichier', file);
     }
   };
 
@@ -130,9 +122,22 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
                     questionMedia={field.value}
                     setQuestionMedia={(file) => form.setValue('fichier', file)}
                     fileInputRef={fileInputRef}
-                    handleFileChange={handleFileChange}
-                    handleDragOver={handleDragOver}
-                    handleDrop={handleDrop}
+                    handleFileChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) {
+                        form.setValue('fichier', file);
+                      }
+                    }}
+                    handleDragOver={(event) => {
+                      event.preventDefault();
+                    }}
+                    handleDrop={(event) => {
+                      event.preventDefault();
+                      const file = event.dataTransfer.files?.[0];
+                      if (file) {
+                        form.setValue('fichier', file);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
