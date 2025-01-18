@@ -56,17 +56,33 @@ export const quizService = {
 
   createQuestion: async (questionData: FormData): Promise<any> => {
     try {
-      console.log('Creating question with data:', Object.fromEntries(questionData));
+      // Log the data being sent
+      console.log('Creating question with data:', {
+        jeu: questionData.get('jeu'),
+        libelle: questionData.get('libelle'),
+        type_fichier: questionData.get('type_fichier'),
+        temps: questionData.get('temps'),
+        limite_response: questionData.get('limite_response'),
+        typeQuestion: questionData.get('typeQuestion'),
+        point: questionData.get('point')
+      });
+
       const response = await axios.post(`${HOST}/api/questions`, questionData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           ...getAuthHeader(),
         },
       });
+      
       console.log('Question creation response:', response.data);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating question:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+      }
       throw error;
     }
   }
