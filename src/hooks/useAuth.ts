@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, LoginResponse } from '@/types/auth';
 import { toast } from 'sonner';
 
-const API_URL = 'http://kahoot.nos-apps.com';
+const API_URL = 'https://kahoot.nos-apps.com';
 
 export const useAuth = () => {
   const navigate = useNavigate();
