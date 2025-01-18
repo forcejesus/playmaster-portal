@@ -13,6 +13,7 @@ import { GameSetup } from "@/components/quiz/GameSetup";
 import { GameCreator } from '@/components/quiz/GameCreator';
 import { QuestionCreator } from '@/components/quiz/QuestionCreator';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { Question, Answer } from '@/types/quiz';
 
 const queryClient = new QueryClient();
 
