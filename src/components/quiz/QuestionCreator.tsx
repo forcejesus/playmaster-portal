@@ -153,7 +153,12 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
                 <FormItem>
                   <FormLabel>Temps (secondes)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} min={1} />
+                    <Input 
+                      type="number" 
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      min={1} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
