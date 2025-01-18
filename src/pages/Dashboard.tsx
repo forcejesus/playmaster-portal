@@ -21,10 +21,10 @@ import {
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Game } from "@/types/game";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -37,16 +37,30 @@ const Dashboard = () => {
   const { logout, user } = useAuth();
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // Set up automatic refresh every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [queryClient]);
 
   const { data: gamesData, isLoading } = useQuery({
     queryKey: ['games'],
     queryFn: async () => {
+      console.log('Fetching games data...');
       const response = await axios.get('http://kahoot.nos-apps.com/api/jeux');
+      console.log('Games data received:', response.data);
       return response.data;
-    }
+    },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    staleTime: 0
   });
-
-  const games = gamesData?.data || [];
 
   const container = {
     hidden: { opacity: 0 },
@@ -67,6 +81,12 @@ const Dashboard = () => {
     navigate(`/game/${gameId}`);
   };
 
+  // Force refresh function
+  const handleRefresh = () => {
+    console.log('Manually refreshing data...');
+    queryClient.invalidateQueries({ queryKey: ['games'] });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
       <motion.div 
@@ -85,6 +105,16 @@ const Dashboard = () => {
             </motion.p>
           </div>
           <div className="flex items-center gap-4">
+            <motion.div variants={item}>
+              <Button 
+                variant="outline"
+                onClick={handleRefresh}
+                className="mr-2"
+              >
+                <Clock className="mr-2 h-4 w-4" />
+                Actualiser
+              </Button>
+            </motion.div>
             <motion.div variants={item}>
               <Link to="/quiz-creator">
                 <Button className="bg-primary hover:bg-primary/90">
@@ -119,7 +149,7 @@ const Dashboard = () => {
               <HelpCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{games.length}</div>
+              <div className="text-2xl font-bold">{gamesData?.data.length || 0}</div>
             </CardContent>
           </Card>
 
@@ -130,7 +160,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {games.reduce((acc, game) => acc + game.planification.filter(p => p.statut === "en cours").length, 0)}
+                {gamesData?.data.reduce((acc, game) => acc + game.planification.filter(p => p.statut === "en cours").length, 0) || 0}
               </div>
             </CardContent>
           </Card>
@@ -142,7 +172,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {games.reduce((acc, game) => acc + game.planification.reduce((pacc, p) => pacc + p.participants.length, 0), 0)}
+                {gamesData?.data.reduce((acc, game) => acc + game.planification.reduce((pacc, p) => pacc + p.participants.length, 0), 0) || 0}
               </div>
             </CardContent>
           </Card>
@@ -170,7 +200,7 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {games.map((game: Game) => (
+                    {gamesData?.data.map((game: Game) => (
                       <TableRow 
                         key={game._id}
                         className="cursor-pointer hover:bg-muted/50"
