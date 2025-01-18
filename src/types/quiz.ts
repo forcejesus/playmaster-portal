@@ -1,3 +1,21 @@
+export interface Question {
+  id: string;
+  libelle: string;
+  type_fichier: string;
+  temps: number;
+  limite_response: boolean;
+  typeQuestion: string;
+  point: string;
+  answers: Answer[];
+}
+
+export interface Answer {
+  id: number;
+  text: string;
+  isOptional: boolean;
+  isCorrect: boolean;
+}
+
 export interface GameResponse {
   statut: number;
   message: string;
@@ -37,22 +55,4 @@ export interface PointTypeResponse {
     date: string;
     __v: number;
   }>;
-}
-
-export interface Question {
-  id: string;
-  libelle: string;
-  type_fichier: string;
-  temps: number;
-  limite_response: boolean;
-  typeQuestion: string;
-  point: string;
-  answers: Answer[];
-}
-
-export interface Answer {
-  id: number;
-  text: string;
-  isOptional: boolean;
-  isCorrect: boolean;
 }

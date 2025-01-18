@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -22,6 +22,7 @@ interface GameCreatorProps {
 export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof gameSchema>>({
     resolver: zodResolver(gameSchema),
@@ -29,6 +30,25 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
       titre: "",
     }
   });
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      form.setValue('image', file);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      form.setValue('image', file);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof gameSchema>) => {
     try {
