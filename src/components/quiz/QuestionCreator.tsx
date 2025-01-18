@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { MediaUpload } from '@/components/quiz/MediaUpload';
 import { quizService } from '@/services/quizService';
+import { Question, Answer } from '@/types/quiz';
 
 const questionSchema = z.object({
   libelle: z.string().min(1, "Le libellé est requis"),
@@ -31,6 +32,7 @@ interface QuestionCreatorProps {
 export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: questionTypes } = useQuery({
     queryKey: ['questionTypes'],
@@ -80,6 +82,25 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
     }
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      form.setValue('fichier', file);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      form.setValue('fichier', file);
+    }
+  };
+
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-bold mb-6">Ajouter une question</h2>
@@ -109,6 +130,10 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
                   <MediaUpload
                     questionMedia={field.value}
                     setQuestionMedia={(file) => form.setValue('fichier', file)}
+                    fileInputRef={fileInputRef}
+                    handleFileChange={handleFileChange}
+                    handleDragOver={handleDragOver}
+                    handleDrop={handleDrop}
                   />
                 </FormControl>
                 <FormMessage />

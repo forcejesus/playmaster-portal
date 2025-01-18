@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ImageUpload } from '@/components/quiz/MediaUpload';
+import { MediaUpload } from '@/components/quiz/MediaUpload';
 import { quizService } from '@/services/quizService';
 
 const gameSchema = z.object({
@@ -82,9 +82,13 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
               <FormItem>
                 <FormLabel>Image du jeu</FormLabel>
                 <FormControl>
-                  <ImageUpload
-                    onFileSelected={(file) => form.setValue('image', file)}
-                    accept="image/*"
+                  <MediaUpload
+                    questionMedia={field.value}
+                    setQuestionMedia={(file) => form.setValue('image', file)}
+                    fileInputRef={fileInputRef}
+                    handleFileChange={handleFileChange}
+                    handleDragOver={handleDragOver}
+                    handleDrop={handleDrop}
                   />
                 </FormControl>
                 <FormMessage />
