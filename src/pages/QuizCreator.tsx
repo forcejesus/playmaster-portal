@@ -10,29 +10,14 @@ import { MediaUpload } from "@/components/quiz/MediaUpload";
 import { QuizSidebar } from "@/components/quiz/QuizSidebar";
 import { QuizNavigation } from "@/components/quiz/QuizNavigation";
 import { GameSetup } from "@/components/quiz/GameSetup";
+import { GameCreator } from '@/components/quiz/GameCreator';
+import { QuestionCreator } from '@/components/quiz/QuestionCreator';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
-type AnswerLimit = 'single' | 'multiple';
+const queryClient = new QueryClient();
 
-interface Answer {
-  id: number;
-  text: string;
-  isOptional: boolean;
-  isCorrect: boolean;
-}
-
-interface Question {
-  id: string;
-  libelle: string;
-  type_fichier: string;
-  temps: number;
-  limite_response: boolean;
-  typeQuestion: string;
-  point: string;
-  media?: File;
-  answers: Answer[];
-}
-
-export default function QuizCreator() {
+const QuizCreator = () => {
+  const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const [gameTitle, setGameTitle] = useState("");
   const [gameCoverImage, setGameCoverImage] = useState<File | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -40,7 +25,7 @@ export default function QuizCreator() {
     { id: 1, text: '', isOptional: false, isCorrect: false },
     { id: 2, text: '', isOptional: false, isCorrect: false }
   ]);
-  const [answerLimit, setAnswerLimit] = useState<AnswerLimit>('single');
+  const [answerLimit, setAnswerLimit] = useState<'single' | 'multiple'>('single');
   const [questionMedia, setQuestionMedia] = useState<File | null>(null);
   const [showGameSetup, setShowGameSetup] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,7 +74,6 @@ export default function QuizCreator() {
         <QuizNavigation />
         
         <div className="max-w-7xl mx-auto">
-          {/* Toggle Game Setup Button */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -132,7 +116,6 @@ export default function QuizCreator() {
             )}
           </AnimatePresence>
 
-          {/* Questions List */}
           <div className="space-y-6">
             {questions.map((question, index) => (
               <Card key={question.id} className="p-6">
@@ -206,7 +189,6 @@ export default function QuizCreator() {
                   </div>
                 </div>
 
-                {/* Answers section */}
                 <AnimatePresence>
                   {answers.map((answer, index) => (
                     <motion.div
@@ -259,7 +241,6 @@ export default function QuizCreator() {
             ))}
           </div>
 
-          {/* Add Question Button */}
           <Button 
             className="mt-6 w-full"
             onClick={addNewQuestion}
@@ -273,4 +254,6 @@ export default function QuizCreator() {
       </div>
     </TooltipProvider>
   );
-}
+};
+
+export default QuizCreator;
