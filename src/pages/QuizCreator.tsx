@@ -1,18 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Copy, Trash, Check, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { QuizHeader } from "@/components/quiz/QuizHeader";
-import { MediaUpload } from "@/components/quiz/MediaUpload";
-import { QuizSidebar } from "@/components/quiz/QuizSidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizNavigation } from "@/components/quiz/QuizNavigation";
 import { GameSetup } from "@/components/quiz/GameSetup";
 import { QuestionCreator } from '@/components/quiz/QuestionCreator';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { Question, Answer } from '@/types/quiz';
 import { useToast } from "@/hooks/use-toast";
 
 const queryClient = new QueryClient();
@@ -22,7 +16,6 @@ const QuizCreator = () => {
   const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const [gameTitle, setGameTitle] = useState("");
   const [gameCoverImage, setGameCoverImage] = useState<File | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
   const [showGameSetup, setShowGameSetup] = useState(true);
 
   const handleGameCreated = (gameId: string) => {
@@ -31,6 +24,14 @@ const QuizCreator = () => {
       title: "Configuration terminée",
       description: "Vous pouvez maintenant ajouter des questions à votre jeu",
     });
+  };
+
+  const handleQuestionCreated = () => {
+    toast({
+      title: "Question ajoutée",
+      description: "La question a été ajoutée avec succès à votre jeu",
+    });
+    // You can add additional logic here if needed
   };
 
   return (
@@ -85,7 +86,10 @@ const QuizCreator = () => {
 
             {currentGameId && (
               <div className="space-y-6">
-                <QuestionCreator gameId={currentGameId} />
+                <QuestionCreator 
+                  gameId={currentGameId} 
+                  onQuestionCreated={handleQuestionCreated}
+                />
               </div>
             )}
           </div>
