@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { GameResponse, QuestionTypeResponse, PointTypeResponse } from '@/types/quiz';
 
-const HOST = 'http://your-api-host'; // À remplacer par l'URL de votre API
+const HOST = 'http://kahoot.nos-apps.com';
 
 export const quizService = {
   createGame: async (formData: FormData): Promise<GameResponse> => {
