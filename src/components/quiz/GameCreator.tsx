@@ -53,19 +53,32 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
   const onSubmit = async (values: z.infer<typeof gameSchema>) => {
     try {
       setIsLoading(true);
+      console.log('Submitting game with values:', values);
+      
       const formData = new FormData();
       formData.append('titre', values.titre);
       formData.append('image', values.image);
 
       const response = await quizService.createGame(formData);
+      console.log('Game created successfully:', response);
       
       toast({
         title: "Succès",
         description: "Le jeu a été créé avec succès",
       });
 
-      onGameCreated(response.jeu._id);
+      if (response.jeu && response.jeu._id) {
+        onGameCreated(response.jeu._id);
+      } else {
+        console.error('No game ID received in response');
+        toast({
+          title: "Erreur",
+          description: "ID du jeu manquant dans la réponse",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
+      console.error('Error in game creation:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la création du jeu",
@@ -116,7 +129,7 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
             )}
           />
 
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} className="w-full">
             {isLoading ? "Création en cours..." : "Créer le jeu"}
           </Button>
         </form>
