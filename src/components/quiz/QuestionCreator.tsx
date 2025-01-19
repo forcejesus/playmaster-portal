@@ -12,7 +12,7 @@ import { QuestionTypeSelect } from './QuestionTypeSelect';
 import { QuestionSettings } from './QuestionSettings';
 import { AnswerCreator } from './AnswerCreator';
 import { quizService } from '@/services/quizService';
-import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const questionSchema = z.object({
   libelle: z.string().min(1, "Le libellé est requis"),
@@ -55,11 +55,7 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       setIsLoading(true);
       const formData = new FormData();
       
-      // Ajouter l'ID du jeu
       formData.append('jeu', gameId);
-      console.log('Adding game ID to question:', gameId);
-      
-      // Ajouter les autres champs
       formData.append('libelle', values.libelle);
       formData.append('type_fichier', values.type_fichier);
       formData.append('temps', values.temps.toString());
@@ -67,12 +63,9 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       formData.append('typeQuestion', values.typeQuestion);
       formData.append('point', values.point);
       
-      // Ajouter le fichier s'il existe
       if (values.fichier instanceof File) {
         formData.append('fichier', values.fichier);
       }
-
-      console.log('Creating question with form data:', Object.fromEntries(formData));
 
       const response = await quizService.createQuestion(formData);
       
@@ -84,9 +77,8 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
 
         setCurrentQuestionId(response.data._id);
         onQuestionCreated(response.data);
-        
-        // Reset answers when creating a new question
         setAnswers([]);
+        form.reset();
       } else {
         throw new Error(response.message || "La création de la question a échoué");
       }
@@ -176,39 +168,32 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       </Card>
 
       {currentQuestionId && (
-        <>
-          <Card className="p-6">
-            <AnswerCreator 
-              questionId={currentQuestionId}
-              onAnswerCreated={handleAnswerCreated}
-            />
-          </Card>
+        <Card className="p-6">
+          <AnswerCreator 
+            questionId={currentQuestionId}
+            onAnswerCreated={handleAnswerCreated}
+          />
+        </Card>
+      )}
 
-          {answers.length > 0 && (
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Réponses ajoutées</h3>
-              <div className="space-y-4">
-                {answers.map((answer, index) => (
-                  <div key={answer._id || index} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{answer.reponse_texte}</p>
-                      <span className={`px-2 py-1 rounded-full text-sm ${answer.etat ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {answer.etat ? 'Correcte' : 'Incorrecte'}
-                      </span>
-                    </div>
-                    {answer.file && (
-                      <img 
-                        src={`http://kahoot.nos-apps.com/${answer.file}`}
-                        alt={`Réponse ${index + 1}`}
-                        className="mt-2 w-full h-32 object-contain rounded-md"
-                      />
-                    )}
+      {answers.length > 0 && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Réponses ajoutées ({answers.length})</h3>
+          <ScrollArea className="h-[200px]">
+            <div className="space-y-4">
+              {answers.map((answer, index) => (
+                <Card key={answer._id || index} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">{answer.reponse_texte}</p>
+                    <span className={`px-2 py-1 rounded-full text-sm ${answer.etat ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {answer.etat ? 'Correcte' : 'Incorrecte'}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </Card>
       )}
     </div>
   );

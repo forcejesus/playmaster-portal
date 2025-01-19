@@ -4,14 +4,22 @@ import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { GameCreator } from '@/components/quiz/GameCreator';
 import { QuestionCreator } from '@/components/quiz/QuestionCreator';
-import { Game } from '@/types/game';
+import { Game, Question } from '@/types/game';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function QuizCreator() {
   const navigate = useNavigate();
   const [gameDetails, setGameDetails] = useState<Game | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   const handleGameCreated = (newGameDetails: Game) => {
     setGameDetails(newGameDetails);
+  };
+
+  const handleQuestionCreated = (newQuestion: Question) => {
+    setQuestions(prev => [...prev, newQuestion]);
+    console.log("Question ajoutée avec succès");
   };
 
   return (
@@ -36,10 +44,39 @@ export default function QuizCreator() {
           <div className="space-y-6">
             <QuestionCreator 
               gameId={gameDetails._id}
-              onQuestionCreated={() => {
-                console.log("Question créée avec succès");
-              }} 
+              onQuestionCreated={handleQuestionCreated}
             />
+            
+            {questions.length > 0 && (
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Questions ajoutées ({questions.length})</h3>
+                <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+                  <div className="space-y-4">
+                    {questions.map((question, index) => (
+                      <Card key={question._id} className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium">Question {index + 1}</h4>
+                            <p className="text-sm text-gray-600">{question.libelle}</p>
+                            {question.fichier && (
+                              <img 
+                                src={`http://kahoot.nos-apps.com/${question.fichier}`}
+                                alt={`Question ${index + 1}`}
+                                className="mt-2 w-32 h-32 object-cover rounded"
+                              />
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            <p>Temps: {question.temps}s</p>
+                            <p>Réponses: {question.reponses?.length || 0}</p>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </Card>
+            )}
           </div>
         )}
       </div>
