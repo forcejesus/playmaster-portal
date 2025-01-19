@@ -53,15 +53,31 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       setIsLoading(true);
       const formData = new FormData();
       
-      Object.entries(values).forEach(([key, value]) => {
-        if (key === 'fichier' && value instanceof File) {
-          formData.append(key, value);
-        } else {
-          formData.append(key, value.toString());
-        }
-      });
+      // Ajouter les champs de base
+      formData.append('libelle', values.libelle);
+      formData.append('type_fichier', values.type_fichier);
+      formData.append('temps', values.temps.toString());
+      formData.append('limite_response', values.limite_response.toString());
+      formData.append('typeQuestion', values.typeQuestion);
+      formData.append('point', values.point);
       
+      // Ajouter le fichier s'il existe
+      if (values.fichier instanceof File) {
+        formData.append('fichier', values.fichier);
+      }
+      
+      // Ajouter l'ID du jeu
       formData.append('jeu', gameId);
+
+      console.log('Sending question data:', {
+        libelle: values.libelle,
+        type_fichier: values.type_fichier,
+        temps: values.temps,
+        limite_response: values.limite_response,
+        typeQuestion: values.typeQuestion,
+        point: values.point,
+        jeu: gameId
+      });
 
       const response = await quizService.createQuestion(formData);
       
@@ -74,7 +90,7 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
         setCurrentQuestionId(response.data._id);
         onQuestionCreated(response.data);
       } else {
-        throw new Error("La création de la question a échoué");
+        throw new Error(response.message || "La création de la question a échoué");
       }
     } catch (error) {
       console.error('Error creating question:', error);

@@ -40,11 +40,11 @@ export const MediaUpload = ({
         {questionMedia ? (
           <div className="space-y-4">
             {previewUrl && (
-              <div className="relative w-full h-48">
+              <div className="relative w-full h-48 overflow-hidden">
                 <ImageLoader 
                   src={previewUrl}
                   alt="Media preview"
-                  className="w-full h-full object-cover rounded-md"
+                  className="w-full h-full object-contain rounded-md"
                   fallback="/placeholder.svg"
                 />
               </div>
