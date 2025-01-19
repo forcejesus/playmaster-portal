@@ -11,17 +11,20 @@ const getAuthHeader = () => {
 export const answerService = {
   createAnswer: async (answerData: FormData): Promise<AnswerResponse> => {
     try {
-      console.log('Creating answer with data:', Object.fromEntries(answerData));
+      const formDataObject = Object.fromEntries(answerData);
+      console.log('Creating answer with data:', formDataObject);
+      
       const response = await axios.post(`${HOST}/api/reponse`, answerData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
           ...getAuthHeader(),
         },
       });
+      
       console.log('Answer creation response:', response.data);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating answer:', error);
+      console.error('Error response:', error.response?.data);
       throw error;
     }
   },

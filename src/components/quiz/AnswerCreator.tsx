@@ -37,6 +37,8 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
   const onSubmit = async (values: z.infer<typeof answerSchema>) => {
     try {
       setIsLoading(true);
+      console.log('Submitting answer with values:', values);
+      
       const formData = new FormData();
       
       // Add form values to FormData
@@ -44,20 +46,30 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
       formData.append('etat', values.etat ? '1' : '0');
       formData.append('question', questionId);
       
+      // Only append file if it exists
       if (values.file instanceof File) {
         formData.append('file', values.file);
       }
 
-      await answerService.createAnswer(formData);
-      
-      toast({
-        title: "Succès",
-        description: "La réponse a été créée avec succès",
-      });
+      // Log the FormData contents for debugging
+      console.log('FormData contents:', Object.fromEntries(formData));
 
-      onAnswerCreated();
-      form.reset();
+      const response = await answerService.createAnswer(formData);
+      console.log('Answer creation response:', response);
+      
+      if (response.success) {
+        toast({
+          title: "Succès",
+          description: "La réponse a été créée avec succès",
+        });
+
+        onAnswerCreated();
+        form.reset();
+      } else {
+        throw new Error(response.message || "Erreur lors de la création de la réponse");
+      }
     } catch (error) {
+      console.error('Error in onSubmit:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la création de la réponse",
