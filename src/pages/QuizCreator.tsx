@@ -27,9 +27,11 @@ const QuizCreatorContent = () => {
   const [gameCoverImage, setGameCoverImage] = useState<File | null>(null);
   const [showGameSetup, setShowGameSetup] = useState(true);
   const [questions, setQuestions] = useState<any[]>([]);
+  const [showQuestionCreator, setShowQuestionCreator] = useState(false);
 
   const handleGameCreated = async (gameId: string) => {
     setCurrentGameId(gameId);
+    setShowQuestionCreator(true);
     toast({
       title: "Configuration terminée",
       description: "Vous pouvez maintenant ajouter des questions à votre jeu",
@@ -37,10 +39,15 @@ const QuizCreatorContent = () => {
   };
 
   const handleQuestionCreated = () => {
+    setShowQuestionCreator(false);
     toast({
       title: "Question ajoutée",
       description: "La question a été ajoutée avec succès à votre jeu",
     });
+  };
+
+  const handleAddNewQuestion = () => {
+    setShowQuestionCreator(true);
   };
 
   return (
@@ -55,7 +62,7 @@ const QuizCreatorContent = () => {
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-lg font-semibold">Création de Quiz</h1>
+            <h1 className="text-lg font-semibold">Création d'un jeux</h1>
           </div>
         </div>
       </nav>
@@ -112,10 +119,12 @@ const QuizCreatorContent = () => {
                     Gérez les questions de votre quiz
                   </p>
                 </div>
-                <Button onClick={() => setShowGameSetup(!showGameSetup)} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Ajouter une question
-                </Button>
+                {!showQuestionCreator && (
+                  <Button onClick={handleAddNewQuestion} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Ajouter une question
+                  </Button>
+                )}
               </div>
 
               <div className="grid gap-6">
@@ -142,10 +151,12 @@ const QuizCreatorContent = () => {
                 ))}
               </div>
 
-              <QuestionCreator 
-                gameId={currentGameId} 
-                onQuestionCreated={handleQuestionCreated}
-              />
+              {showQuestionCreator && (
+                <QuestionCreator 
+                  gameId={currentGameId} 
+                  onQuestionCreated={handleQuestionCreated}
+                />
+              )}
             </section>
           )}
         </div>
