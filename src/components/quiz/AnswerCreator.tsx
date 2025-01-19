@@ -4,7 +4,7 @@ import { useAnswerCreation } from '@/hooks/useAnswerCreation';
 
 interface AnswerCreatorProps {
   questionId: string;
-  onAnswerCreated: () => void;
+  onAnswerCreated: (newAnswer: any) => void;
 }
 
 export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProps) => {
