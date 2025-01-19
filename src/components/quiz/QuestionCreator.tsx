@@ -3,13 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { MediaUpload } from '@/components/quiz/MediaUpload';
+import { MediaUpload } from './MediaUpload';
+import { QuestionTypeSelect } from './QuestionTypeSelect';
+import { QuestionSettings } from './QuestionSettings';
 import { quizService } from '@/services/quizService';
 
 const questionSchema = z.object({
@@ -64,17 +63,12 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       const response = await quizService.createQuestion(formData);
       
       if (response.success && response.data) {
-        const questionData = {
-          ...response.data,
-          _id: response.data._id
-        };
-        
         toast({
           title: "Succès",
           description: "La question a été créée avec succès",
         });
 
-        onQuestionCreated(questionData);
+        onQuestionCreated(response.data);
       } else {
         throw new Error("La création de la question a échoué");
       }
@@ -95,31 +89,8 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       <h2 className="text-2xl font-bold mb-6">Ajouter une question</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="questionType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type de question</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner le type de question" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="quiz">Question à choix unique</SelectItem>
-                    <SelectItem value="true-false">Vrai/Faux</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+          <QuestionTypeSelect form={form} />
+          
           <FormField
             control={form.control}
             name="libelle"
@@ -168,44 +139,7 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
             )}
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="temps"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Temps (secondes)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      min={1} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="limite_response"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel>Chronométrer le temps</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
+          <QuestionSettings form={form} />
 
           <Button type="submit" disabled={isLoading} className="w-full">
             {isLoading ? "Création en cours..." : "Ajouter la question"}
