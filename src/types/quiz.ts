@@ -56,3 +56,17 @@ export interface PointTypeResponse {
     __v: number;
   }>;
 }
+
+export interface QuestionResponse {
+  success: boolean;
+  message: string;
+  question: {
+    _id: string;
+    libelle: string;
+    type_fichier: string;
+    temps: number;
+    limite_response: boolean;
+    typeQuestion: string;
+    point: string;
+  };
+}

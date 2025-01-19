@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { MediaUpload } from '@/components/quiz/MediaUpload';
+import { AnswerCreator } from '@/components/quiz/AnswerCreator';
 import { quizService } from '@/services/quizService';
 
 const questionSchema = z.object({
@@ -31,6 +32,7 @@ interface QuestionCreatorProps {
 export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: questionTypes } = useQuery({
@@ -60,7 +62,6 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       setIsLoading(true);
       const formData = new FormData();
       
-      // Add all form values to FormData
       Object.entries(values).forEach(([key, value]) => {
         if (key === 'fichier' && value instanceof File) {
           formData.append(key, value);
@@ -69,10 +70,10 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
         }
       });
       
-      // Add game ID
       formData.append('jeu', gameId);
 
-      await quizService.createQuestion(formData);
+      const response = await quizService.createQuestion(formData);
+      setCurrentQuestionId(response.question._id);
       
       toast({
         title: "Succès",
@@ -80,7 +81,6 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       });
 
       onQuestionCreated();
-      form.reset();
     } catch (error) {
       toast({
         title: "Erreur",
@@ -93,72 +93,19 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Ajouter une question</h2>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="libelle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Libellé de la question</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Entrez le libellé de la question" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="fichier"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fichier multimédia</FormLabel>
-                <FormControl>
-                  <MediaUpload
-                    questionMedia={field.value}
-                    setQuestionMedia={(file) => form.setValue('fichier', file)}
-                    fileInputRef={fileInputRef}
-                    handleFileChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file) {
-                        form.setValue('fichier', file);
-                      }
-                    }}
-                    handleDragOver={(event) => {
-                      event.preventDefault();
-                    }}
-                    handleDrop={(event) => {
-                      event.preventDefault();
-                      const file = event.dataTransfer.files?.[0];
-                      if (file) {
-                        form.setValue('fichier', file);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold mb-6">Ajouter une question</h2>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="temps"
+              name="libelle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Temps (secondes)</FormLabel>
+                  <FormLabel>Libellé de la question</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      min={1} 
-                    />
+                    <Input {...field} placeholder="Entrez le libellé de la question" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -167,78 +114,142 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
 
             <FormField
               control={form.control}
-              name="limite_response"
+              name="fichier"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel>Limite de réponses</FormLabel>
-                  </div>
+                <FormItem>
+                  <FormLabel>Fichier multimédia</FormLabel>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <MediaUpload
+                      questionMedia={field.value}
+                      setQuestionMedia={(file) => form.setValue('fichier', file)}
+                      fileInputRef={fileInputRef}
+                      handleFileChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) {
+                          form.setValue('fichier', file);
+                        }
+                      }}
+                      handleDragOver={(event) => {
+                        event.preventDefault();
+                      }}
+                      handleDrop={(event) => {
+                        event.preventDefault();
+                        const file = event.dataTransfer.files?.[0];
+                        if (file) {
+                          form.setValue('fichier', file);
+                        }
+                      }}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
 
-          <FormField
-            control={form.control}
-            name="typeQuestion"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type de question</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un type de question" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {questionTypes?.data.map((type) => (
-                      <SelectItem key={type._id} value={type._id}>
-                        {type.libelle}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="temps"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Temps (secondes)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        min={1} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="point"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type de points</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un type de points" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {pointTypes?.data.map((type) => (
-                      <SelectItem key={type._id} value={type._id}>
-                        {type.nature} ({type.valeur} points)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="limite_response"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel>Limite de réponses</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Création en cours..." : "Ajouter la question"}
-          </Button>
-        </form>
-      </Form>
-    </Card>
+            <FormField
+              control={form.control}
+              name="typeQuestion"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type de question</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un type de question" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {questionTypes?.data.map((type) => (
+                        <SelectItem key={type._id} value={type._id}>
+                          {type.libelle}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="point"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type de points</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un type de points" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {pointTypes?.data.map((type) => (
+                        <SelectItem key={type._id} value={type._id}>
+                          {type.nature} ({type.valeur} points)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Création en cours..." : "Ajouter la question"}
+            </Button>
+          </form>
+        </Form>
+      </Card>
+
+      {currentQuestionId && (
+        <AnswerCreator 
+          questionId={currentQuestionId}
+          onAnswerCreated={() => {
+            // Optionally refresh data or handle answer creation
+          }}
+        />
+      )}
+    </div>
   );
 };
