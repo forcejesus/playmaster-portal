@@ -11,7 +11,7 @@ export const QuizHeader = ({ gameTitle, setGameTitle }: QuizHeaderProps) => {
     <header className="bg-white border-b px-6 py-4 rounded-t-xl shadow-md flex items-center justify-between mb-6">
       <div className="flex items-center gap-6">
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-          Khoot ECES JEUX
+          {gameTitle || "Nouveau jeu"}
         </h1>
         <Input 
           placeholder="Nom du kahoot" 

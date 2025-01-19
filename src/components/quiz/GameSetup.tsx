@@ -92,18 +92,18 @@ export const GameSetup = ({
       transition={{ duration: 0.3 }}
     >
       <form onSubmit={handleSubmit}>
-        <Card className="mb-8 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-          <h2 className="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+        <Card className="p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+          <h2 className="text-2xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
             Configuration du jeu
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">Titre du jeu</label>
               <Input
                 value={gameTitle}
                 onChange={(e) => setGameTitle(e.target.value)}
                 placeholder="Entrez le titre du jeu"
-                className="mb-4 border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300"
+                className="border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300"
               />
             </div>
             <div>
