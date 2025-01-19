@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ImageLoader } from '@/components/ui/image-loader';
 
 interface MediaUploadProps {
   questionMedia: File | undefined;
@@ -19,6 +20,8 @@ export const MediaUpload = ({
   handleDragOver,
   handleDrop,
 }: MediaUploadProps) => {
+  const previewUrl = questionMedia ? URL.createObjectURL(questionMedia) : null;
+
   return (
     <Card
       className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
@@ -33,9 +36,19 @@ export const MediaUpload = ({
         accept="image/*,video/*,audio/*"
         className="hidden"
       />
-      <div className="space-y-2">
+      <div className="space-y-4">
         {questionMedia ? (
-          <div className="space-y-2">
+          <div className="space-y-4">
+            {previewUrl && (
+              <div className="relative w-full h-48">
+                <ImageLoader 
+                  src={previewUrl}
+                  alt="Media preview"
+                  className="w-full h-full object-cover rounded-md"
+                  fallback="/placeholder.svg"
+                />
+              </div>
+            )}
             <p className="text-sm text-gray-500">Fichier sélectionné: {questionMedia.name}</p>
             <Button
               type="button"
