@@ -20,16 +20,17 @@ export type AnswerFormData = z.infer<typeof answerSchema>;
 interface AnswerFormProps {
   onSubmit: (values: AnswerFormData, file: File | null) => Promise<void>;
   isLoading: boolean;
+  isVraiFaux?: boolean;
 }
 
-export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
+export const AnswerForm = ({ onSubmit, isLoading, isVraiFaux = false }: AnswerFormProps) => {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
   const form = useForm<AnswerFormData>({
     resolver: zodResolver(answerSchema),
     defaultValues: {
-      reponse_texte: "",
+      reponse_texte: isVraiFaux ? "Vrai" : "",
       etat: false,
     }
   });
@@ -43,7 +44,6 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
 
   React.useEffect(() => {
     return () => {
-      // Nettoyer l'URL de prévisualisation lors du démontage
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
       }
@@ -51,7 +51,6 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
   }, [previewUrl]);
 
   const handleSubmit = async (values: AnswerFormData) => {
-    console.log('Soumission du formulaire avec les valeurs:', values);
     await onSubmit(values, selectedFile);
     if (!isLoading) {
       form.reset();
@@ -73,7 +72,11 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
             <FormItem>
               <FormLabel>Texte de la réponse</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Entrez le texte de la réponse" />
+                <Input 
+                  {...field} 
+                  placeholder="Entrez le texte de la réponse"
+                  disabled={isVraiFaux} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -85,7 +88,7 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
           name="file"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image (obligatoire)</FormLabel>
+              <FormLabel>Image de la réponse</FormLabel>
               <FormControl>
                 <div className="space-y-4">
                   <ImageUpload
@@ -126,7 +129,7 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
           )}
         />
 
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Création en cours..." : "Ajouter la réponse"}
         </Button>
       </form>

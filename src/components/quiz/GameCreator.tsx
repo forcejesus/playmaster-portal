@@ -90,7 +90,7 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Créer un nouveau jeu</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -101,7 +101,7 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
               <FormItem>
                 <FormLabel>Titre du jeu</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Entrez le titre du jeu" />
+                  <Input {...field} placeholder="Entrez le titre du jeu" className="w-full" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
