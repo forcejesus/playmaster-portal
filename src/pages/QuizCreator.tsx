@@ -36,8 +36,7 @@ const QuizCreatorContent = () => {
     });
   };
 
-  const handleQuestionCreated = async (newQuestion: any) => {
-    setQuestions(prev => [...prev, newQuestion]);
+  const handleQuestionCreated = () => {
     toast({
       title: "Question ajoutée",
       description: "La question a été ajoutée avec succès à votre jeu",
