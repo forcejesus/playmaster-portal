@@ -57,6 +57,7 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       
       // Ajouter l'ID du jeu
       formData.append('jeu', gameId);
+      console.log('Adding game ID to question:', gameId);
       
       // Ajouter les autres champs
       formData.append('libelle', values.libelle);
@@ -71,8 +72,7 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
         formData.append('fichier', values.fichier);
       }
 
-      console.log('Creating question with game ID:', gameId);
-      console.log('Form data content:', Object.fromEntries(formData));
+      console.log('Creating question with form data:', Object.fromEntries(formData));
 
       const response = await quizService.createQuestion(formData);
       
