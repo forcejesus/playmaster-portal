@@ -14,6 +14,9 @@ export const answerService = {
       // Vérification du contenu du FormData avant envoi
       const formDataContent: { [key: string]: any } = {};
       formData.forEach((value, key) => {
+        if (value instanceof File) {
+          console.log(`Fichier détecté pour ${key}:`, value.name, value.type, value.size);
+        }
         formDataContent[key] = value instanceof File ? value.name : value;
       });
       console.log('Contenu du FormData avant envoi:', formDataContent);
@@ -37,7 +40,9 @@ export const answerService = {
       return response.data;
     } catch (error: any) {
       console.error('Erreur lors de la création de la réponse:', error);
-      console.error('Détails de l\'erreur:', error.response?.data);
+      if (error.response?.data) {
+        console.error('Détails de l\'erreur:', error.response.data);
+      }
       throw new Error(error.response?.data?.message || 'Erreur lors de la création de la réponse');
     }
   },

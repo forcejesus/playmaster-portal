@@ -20,13 +20,14 @@ export const useAnswerCreation = (questionId: string, onAnswerCreated: () => voi
       
       // Ajout du fichier si présent
       if (selectedFile) {
-        formData.append('file', selectedFile);
+        console.log('Ajout du fichier:', selectedFile.name, selectedFile.type, selectedFile.size);
+        formData.append('file', selectedFile, selectedFile.name);
       }
 
       // Log pour débugger
       const formDataEntries: { [key: string]: any } = {};
       formData.forEach((value, key) => {
-        formDataEntries[key] = value instanceof File ? value.name : value;
+        formDataEntries[key] = value instanceof File ? `${value.name} (${value.type})` : value;
       });
       console.log('Données envoyées:', formDataEntries);
 
