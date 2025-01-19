@@ -9,30 +9,12 @@ const getAuthHeader = () => {
 };
 
 export const answerService = {
-  createAnswer: async (formData: FormData): Promise<AnswerResponse> => {
+  createAnswer: async (data: { reponse_texte: string; question: string; etat: boolean }): Promise<AnswerResponse> => {
     try {
-      // Vérification du contenu du FormData avant envoi
-      const formDataContent: { [key: string]: any } = {};
-      formData.forEach((value, key) => {
-        if (value instanceof File) {
-          console.log(`Fichier détecté pour ${key}:`, value.name, value.type, value.size);
-        }
-        formDataContent[key] = value instanceof File ? value.name : value;
-      });
-      console.log('Contenu du FormData avant envoi:', formDataContent);
-
-      // Vérification des champs requis
-      const requiredFields = ['reponse_texte', 'question', 'etat'];
-      for (const field of requiredFields) {
-        if (!formData.get(field)) {
-          throw new Error(`Le champ ${field} est requis`);
-        }
-      }
-
-      const response = await axios.post(`${HOST}/api/reponse`, formData, {
+      const response = await axios.post(`${HOST}/api/reponse`, data, {
         headers: {
           ...getAuthHeader(),
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
       

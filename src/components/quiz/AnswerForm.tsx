@@ -6,27 +6,21 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { ImageUpload } from './ImageUpload';
-import { ImageLoader } from '@/components/ui/image-loader';
 
 const answerSchema = z.object({
   reponse_texte: z.string().min(1, "Le texte de la réponse est requis"),
-  file: z.any().refine((file) => file instanceof File, "L'image est requise"),
   etat: z.boolean(),
 });
 
 export type AnswerFormData = z.infer<typeof answerSchema>;
 
 interface AnswerFormProps {
-  onSubmit: (values: AnswerFormData, file: File | null) => Promise<void>;
+  onSubmit: (values: AnswerFormData) => Promise<void>;
   isLoading: boolean;
   isVraiFaux?: boolean;
 }
 
 export const AnswerForm = ({ onSubmit, isLoading, isVraiFaux = false }: AnswerFormProps) => {
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-
   const form = useForm<AnswerFormData>({
     resolver: zodResolver(answerSchema),
     defaultValues: {
@@ -35,30 +29,10 @@ export const AnswerForm = ({ onSubmit, isLoading, isVraiFaux = false }: AnswerFo
     }
   });
 
-  const handleFileSelected = (file: File) => {
-    setSelectedFile(file);
-    form.setValue('file', file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-  };
-
-  React.useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
   const handleSubmit = async (values: AnswerFormData) => {
-    await onSubmit(values, selectedFile);
+    await onSubmit(values);
     if (!isLoading) {
       form.reset();
-      setSelectedFile(null);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
     }
   };
 
@@ -77,34 +51,6 @@ export const AnswerForm = ({ onSubmit, isLoading, isVraiFaux = false }: AnswerFo
                   placeholder="Entrez le texte de la réponse"
                   disabled={isVraiFaux} 
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="file"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Image de la réponse</FormLabel>
-              <FormControl>
-                <div className="space-y-4">
-                  <ImageUpload
-                    onFileSelected={handleFileSelected}
-                    accept="image/*"
-                  />
-                  {previewUrl && (
-                    <div className="mt-4">
-                      <ImageLoader
-                        src={previewUrl}
-                        alt="Aperçu de l'image"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                    </div>
-                  )}
-                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
