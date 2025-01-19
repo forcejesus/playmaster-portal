@@ -63,10 +63,10 @@ export const GameSetup = ({
           title: "Succès",
           description: "Le jeu a été créé avec succès",
         });
-        // Passer l'ID du jeu créé
+        // Pass the game ID from the response
         onGameCreated(response.jeu._id);
       } else {
-        console.error('No game ID received in response');
+        console.error('No game ID received in response:', response);
         toast({
           title: "Erreur",
           description: "ID du jeu manquant dans la réponse",
