@@ -13,30 +13,24 @@ export const useAnswerCreation = (questionId: string, onAnswerCreated: () => voi
       
       const formData = new FormData();
       
-      if (!values.reponse_texte) {
-        throw new Error("Le texte de la réponse est requis");
-      }
+      // Ajout des champs requis
       formData.append('reponse_texte', values.reponse_texte);
-      
-      if (!questionId) {
-        throw new Error("L'ID de la question est requis");
-      }
       formData.append('question', questionId);
-      
       formData.append('etat', values.etat ? '1' : '0');
       
+      // Ajout du fichier si présent
       if (selectedFile) {
         formData.append('file', selectedFile);
       }
 
+      // Log pour débugger
       const formDataEntries: { [key: string]: any } = {};
       formData.forEach((value, key) => {
         formDataEntries[key] = value instanceof File ? value.name : value;
       });
-      console.log('Contenu du FormData avant envoi:', formDataEntries);
+      console.log('Données envoyées:', formDataEntries);
 
       const response = await answerService.createAnswer(formData);
-      console.log('Réponse du serveur:', response);
       
       if (response.success) {
         toast({

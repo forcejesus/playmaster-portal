@@ -33,11 +33,12 @@ export const answerService = {
         },
       });
       
+      console.log('Réponse du serveur:', response.data);
       return response.data;
     } catch (error: any) {
       console.error('Erreur lors de la création de la réponse:', error);
       console.error('Détails de l\'erreur:', error.response?.data);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Erreur lors de la création de la réponse');
     }
   },
 };

@@ -33,6 +33,7 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
   });
 
   const handleSubmit = async (values: AnswerFormData) => {
+    console.log('Soumission du formulaire avec les valeurs:', values);
     await onSubmit(values, selectedFile);
     if (!isLoading) {
       form.reset();
