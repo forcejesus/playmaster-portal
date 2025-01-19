@@ -7,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from './ImageUpload';
+import { ImageLoader } from '@/components/ui/image-loader';
 
 const answerSchema = z.object({
   reponse_texte: z.string().min(1, "Le texte de la réponse est requis"),
-  file: z.any().optional(),
+  file: z.any().refine((file) => file instanceof File, "L'image est requise"),
   etat: z.boolean(),
 });
 
@@ -23,6 +24,7 @@ interface AnswerFormProps {
 
 export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
   const form = useForm<AnswerFormData>({
     resolver: zodResolver(answerSchema),
@@ -32,12 +34,32 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
     }
   });
 
+  const handleFileSelected = (file: File) => {
+    setSelectedFile(file);
+    form.setValue('file', file);
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+  };
+
+  React.useEffect(() => {
+    return () => {
+      // Nettoyer l'URL de prévisualisation lors du démontage
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const handleSubmit = async (values: AnswerFormData) => {
     console.log('Soumission du formulaire avec les valeurs:', values);
     await onSubmit(values, selectedFile);
     if (!isLoading) {
       form.reset();
       setSelectedFile(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
     }
   };
 
@@ -61,14 +83,25 @@ export const AnswerForm = ({ onSubmit, isLoading }: AnswerFormProps) => {
         <FormField
           control={form.control}
           name="file"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
-              <FormLabel>Image (optionnelle)</FormLabel>
+              <FormLabel>Image (obligatoire)</FormLabel>
               <FormControl>
-                <ImageUpload
-                  onFileSelected={(file) => setSelectedFile(file)}
-                  accept="image/*"
-                />
+                <div className="space-y-4">
+                  <ImageUpload
+                    onFileSelected={handleFileSelected}
+                    accept="image/*"
+                  />
+                  {previewUrl && (
+                    <div className="mt-4">
+                      <ImageLoader
+                        src={previewUrl}
+                        alt="Aperçu de l'image"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
