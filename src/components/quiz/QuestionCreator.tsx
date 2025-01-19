@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -21,6 +20,7 @@ const questionSchema = z.object({
   limite_response: z.boolean(),
   typeQuestion: z.string().min(1, "Le type de question est requis"),
   point: z.string().min(1, "Le type de points est requis"),
+  questionType: z.enum(["quiz", "true-false"]),
 });
 
 interface QuestionCreatorProps {
@@ -40,8 +40,9 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       temps: 30,
       limite_response: false,
       type_fichier: "image",
-      typeQuestion: "670e7d8996acbaac49443987", // Valeur fixe comme demandé
-      point: "670e7e659c660d6c34411348", // Valeur fixe comme demandé
+      typeQuestion: "670e7d8996acbaac49443987",
+      point: "670e7e659c660d6c34411348",
+      questionType: "quiz",
     }
   });
 
@@ -94,6 +95,31 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       <h2 className="text-2xl font-bold mb-6">Ajouter une question</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="questionType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Type de question</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner le type de question" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="quiz">Question à choix unique</SelectItem>
+                    <SelectItem value="true-false">Vrai/Faux</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="libelle"

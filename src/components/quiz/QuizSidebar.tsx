@@ -20,22 +20,6 @@ export const QuizSidebar = ({ setAnswerLimit }: QuizSidebarProps) => {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium mb-2 block text-gray-700">
-              Type de question
-            </label>
-            <Select defaultValue="quiz">
-              <SelectTrigger className="border-2 border-primary/30 focus:ring-primary focus:border-primary transition-all duration-300">
-                <SelectValue placeholder="Sélectionner le type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="quiz">Quiz</SelectItem>
-                <SelectItem value="true-false">Vrai/Faux</SelectItem>
-                <SelectItem value="survey">Sondage</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium mb-2 block text-gray-700">
               Temps imparti
             </label>
             <Select defaultValue="20">
