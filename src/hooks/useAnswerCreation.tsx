@@ -3,7 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { answerService } from '@/services/answerService';
 import type { AnswerFormData } from '@/components/quiz/AnswerForm';
 
-export const useAnswerCreation = (questionId: string, onAnswerCreated: () => void) => {
+export const useAnswerCreation = (questionId: string, onAnswerCreated: (newAnswer: any) => void) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,7 +38,7 @@ export const useAnswerCreation = (questionId: string, onAnswerCreated: () => voi
           title: "Succès",
           description: "La réponse a été créée avec succès",
         });
-        onAnswerCreated();
+        onAnswerCreated(response.data);
       } else {
         throw new Error(response.message || "Erreur lors de la création de la réponse");
       }
