@@ -26,7 +26,7 @@ const questionSchema = z.object({
 
 interface QuestionCreatorProps {
   gameId: string;
-  onQuestionCreated: () => void;
+  onQuestionCreated: (question: any) => void;
 }
 
 export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorProps) => {
@@ -74,7 +74,6 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
 
       const response = await quizService.createQuestion(formData);
       
-      // Mise à jour pour utiliser la nouvelle structure de réponse
       if (response.success && response.data) {
         setCurrentQuestionId(response.data._id);
         
@@ -83,7 +82,7 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
           description: "La question a été créée avec succès",
         });
 
-        onQuestionCreated();
+        onQuestionCreated(response.data);
       } else {
         throw new Error("La création de la question a échoué");
       }
