@@ -15,7 +15,7 @@ export const useAnswerCreation = (questionId: string, onAnswerCreated: () => voi
       
       // Ajout des champs requis
       formData.append('reponse_texte', values.reponse_texte);
-      formData.append('question', questionId); // S'assurer que l'ID de la question est bien envoyé
+      formData.append('question', questionId);
       formData.append('etat', values.etat ? '1' : '0');
       
       // Ajout du fichier si présent
