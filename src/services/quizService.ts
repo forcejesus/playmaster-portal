@@ -26,6 +26,18 @@ export const quizService = {
     }
   },
 
+  getGameDetails: async (gameId: string): Promise<any> => {
+    try {
+      const response = await axios.get(`${HOST}/api/jeux/${gameId}`, {
+        headers: getAuthHeader(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching game details:', error);
+      throw error;
+    }
+  },
+
   getQuestionTypes: async (): Promise<QuestionTypeResponse> => {
     try {
       console.log('Fetching question types');
