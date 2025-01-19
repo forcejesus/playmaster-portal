@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { GameSetup } from "@/components/quiz/GameSetup";
 import { QuestionCreator } from '@/components/quiz/QuestionCreator';
+import { AnswerCreator } from '@/components/quiz/AnswerCreator';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { useToast } from "@/hooks/use-toast";
 import { Card } from '@/components/ui/card';
@@ -28,6 +29,7 @@ const QuizCreatorContent = () => {
   const [showGameSetup, setShowGameSetup] = useState(true);
   const [questions, setQuestions] = useState<any[]>([]);
   const [showQuestionCreator, setShowQuestionCreator] = useState(false);
+  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
 
   const handleGameCreated = async (gameId: string) => {
     setCurrentGameId(gameId);
@@ -38,16 +40,19 @@ const QuizCreatorContent = () => {
     });
   };
 
-  const handleQuestionCreated = () => {
+  const handleQuestionCreated = (newQuestion: any) => {
+    setQuestions(prev => [...prev, newQuestion]);
     setShowQuestionCreator(false);
+    setSelectedQuestionId(newQuestion._id);
     toast({
       title: "Question ajoutée",
-      description: "La question a été ajoutée avec succès à votre jeu",
+      description: "Vous pouvez maintenant ajouter des réponses à cette question",
     });
   };
 
   const handleAddNewQuestion = () => {
     setShowQuestionCreator(true);
+    setSelectedQuestionId(null);
   };
 
   return (
@@ -119,7 +124,7 @@ const QuizCreatorContent = () => {
                     Gérez les questions de votre quiz
                   </p>
                 </div>
-                {!showQuestionCreator && (
+                {!showQuestionCreator && !selectedQuestionId && (
                   <Button onClick={handleAddNewQuestion} className="gap-2">
                     <Plus className="h-4 w-4" />
                     Ajouter une question
@@ -127,36 +132,49 @@ const QuizCreatorContent = () => {
                 )}
               </div>
 
-              <div className="grid gap-6">
-                {questions.map((question, index) => (
-                  <Card key={question._id || index} className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          Question {index + 1}: {question.libelle}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Temps: {question.temps} secondes
-                        </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  {questions.map((question, index) => (
+                    <Card key={question._id || index} className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold">
+                            Question {index + 1}: {question.libelle}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            Temps: {question.temps} secondes
+                          </p>
+                        </div>
+                        {question.fichier && (
+                          <img 
+                            src={`http://kahoot.nos-apps.com/${question.fichier}`}
+                            alt={question.libelle}
+                            className="w-24 h-24 rounded-lg object-cover"
+                          />
+                        )}
                       </div>
-                      {question.fichier && (
-                        <img 
-                          src={`http://kahoot.nos-apps.com/${question.fichier}`}
-                          alt={question.libelle}
-                          className="w-24 h-24 rounded-lg object-cover"
-                        />
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
 
-              {showQuestionCreator && (
-                <QuestionCreator 
-                  gameId={currentGameId} 
-                  onQuestionCreated={handleQuestionCreated}
-                />
-              )}
+                <div className="space-y-4">
+                  {showQuestionCreator && (
+                    <QuestionCreator 
+                      gameId={currentGameId} 
+                      onQuestionCreated={handleQuestionCreated}
+                    />
+                  )}
+                  
+                  {selectedQuestionId && !showQuestionCreator && (
+                    <AnswerCreator 
+                      questionId={selectedQuestionId}
+                      onAnswerCreated={() => {
+                        // Optionally refresh data or handle answer creation
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
             </section>
           )}
         </div>
