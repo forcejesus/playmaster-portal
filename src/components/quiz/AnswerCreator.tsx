@@ -48,13 +48,15 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
         formData.append('file', selectedFile);
       }
 
-      // Log FormData contents for debugging
-      for (let [key, value] of formData.entries()) {
-        console.log(`FormData ${key}:`, value instanceof File ? `File: ${value.name}` : value);
-      }
+      console.log('Données envoyées:', {
+        reponse_texte: values.reponse_texte,
+        etat: values.etat ? 1 : 0,
+        question: questionId,
+        file: selectedFile ? selectedFile.name : 'Aucun fichier'
+      });
 
       const response = await answerService.createAnswer(formData);
-      console.log('Answer creation response:', response);
+      console.log('Réponse du serveur:', response);
       
       if (response.success) {
         toast({
@@ -69,7 +71,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
         throw new Error(response.message || "Erreur lors de la création de la réponse");
       }
     } catch (error) {
-      console.error('Error in onSubmit:', error);
+      console.error('Erreur lors de la création:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la création de la réponse",
@@ -81,7 +83,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
   };
 
   const handleFileSelected = (file: File) => {
-    console.log('File selected:', file);
+    console.log('Fichier sélectionné:', file);
     setSelectedFile(file);
   };
 
