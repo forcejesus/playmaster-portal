@@ -40,6 +40,8 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
       setIsLoading(true);
       
       const formData = new FormData();
+      
+      // Ajout explicite de chaque champ requis
       formData.append('reponse_texte', values.reponse_texte);
       formData.append('etat', values.etat ? '1' : '0');
       formData.append('question', questionId);
@@ -48,12 +50,12 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
         formData.append('file', selectedFile);
       }
 
-      console.log('Données envoyées:', {
-        reponse_texte: values.reponse_texte,
-        etat: values.etat ? 1 : 0,
-        question: questionId,
-        file: selectedFile ? selectedFile.name : 'Aucun fichier'
+      // Log pour vérifier que tous les champs sont présents
+      const formDataObject: any = {};
+      formData.forEach((value, key) => {
+        formDataObject[key] = value instanceof File ? value.name : value;
       });
+      console.log('FormData contenu:', formDataObject);
 
       const response = await answerService.createAnswer(formData);
       console.log('Réponse du serveur:', response);

@@ -11,12 +11,12 @@ const getAuthHeader = () => {
 export const answerService = {
   createAnswer: async (formData: FormData): Promise<AnswerResponse> => {
     try {
-      console.log('FormData envoyée:', {
-        reponse_texte: formData.get('reponse_texte'),
-        etat: formData.get('etat'),
-        question: formData.get('question'),
-        file: formData.get('file')
+      // Log pour vérifier le contenu du FormData avant l'envoi
+      const formDataContent: any = {};
+      formData.forEach((value, key) => {
+        formDataContent[key] = value instanceof File ? value.name : value;
       });
+      console.log('Contenu du FormData avant envoi:', formDataContent);
 
       const response = await axios.post(`${HOST}/api/reponse`, formData, {
         headers: {
