@@ -16,7 +16,7 @@ const gameSchema = z.object({
 });
 
 interface GameCreatorProps {
-  onGameCreated: (gameId: string) => void;
+  onGameCreated: (gameDetails: any) => void;
 }
 
 export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
@@ -55,28 +55,24 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
       setIsLoading(true);
       console.log('Submitting game with values:', values);
       
-      const formData = new FormData();
-      formData.append('titre', values.titre);
-      formData.append('image', values.image);
+      // Créer un objet avec les détails du jeu
+      const gameDetails = {
+        _id: Date.now().toString(), // Générer un ID temporaire
+        titre: values.titre,
+        image: URL.createObjectURL(values.image),
+        date: new Date().toISOString(),
+        questions: []
+      };
 
-      const response = await quizService.createGame(formData);
-      console.log('Game created successfully:', response);
+      // Simuler un délai d'API
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       toast({
         title: "Succès",
         description: "Le jeu a été créé avec succès",
       });
 
-      if (response.jeu && response.jeu._id) {
-        onGameCreated(response.jeu._id);
-      } else {
-        console.error('No game ID received in response');
-        toast({
-          title: "Erreur",
-          description: "ID du jeu manquant dans la réponse",
-          variant: "destructive",
-        });
-      }
+      onGameCreated(gameDetails);
     } catch (error) {
       console.error('Error in game creation:', error);
       toast({

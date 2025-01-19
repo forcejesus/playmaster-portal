@@ -22,7 +22,7 @@ export const GameDetails = ({ game }: GameDetailsProps) => {
           </div>
           <div className="relative h-48">
             <ImageLoader
-              src={`http://kahoot.nos-apps.com/${game.image}`}
+              src={game.image}
               alt={game.titre}
               className="w-full h-full object-cover rounded-lg"
               fallback="/placeholder.svg"
