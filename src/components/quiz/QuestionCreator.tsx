@@ -75,14 +75,19 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       const response = await quizService.createQuestion(formData);
       
       if (response.success && response.data) {
-        setCurrentQuestionId(response.data._id);
+        const questionData = {
+          ...response.data,
+          _id: response.data._id // S'assurer que l'ID est inclus
+        };
+        
+        setCurrentQuestionId(questionData._id);
         
         toast({
           title: "Succès",
           description: "La question a été créée avec succès",
         });
 
-        onQuestionCreated(response.data);
+        onQuestionCreated(questionData);
       } else {
         throw new Error("La création de la question a échoué");
       }
