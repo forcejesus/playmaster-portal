@@ -7,31 +7,17 @@ export const useAnswerCreation = (questionId: string, onAnswerCreated: (newAnswe
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const createAnswer = async (values: AnswerFormData, selectedFile: File | null) => {
+  const createAnswer = async (values: AnswerFormData) => {
     try {
       setIsLoading(true);
       
-      const formData = new FormData();
-      
-      // Ajout des champs requis
-      formData.append('reponse_texte', values.reponse_texte);
-      formData.append('question', questionId);
-      formData.append('etat', values.etat ? '1' : '0');
-      
-      // Ajout du fichier si présent
-      if (selectedFile) {
-        console.log('Ajout du fichier:', selectedFile.name, selectedFile.type, selectedFile.size);
-        formData.append('file', selectedFile, selectedFile.name);
-      }
+      const answerData = {
+        reponse_texte: values.reponse_texte,
+        question: questionId,
+        etat: values.etat
+      };
 
-      // Log pour débugger
-      const formDataEntries: { [key: string]: any } = {};
-      formData.forEach((value, key) => {
-        formDataEntries[key] = value instanceof File ? `${value.name} (${value.type})` : value;
-      });
-      console.log('Données envoyées:', formDataEntries);
-
-      const response = await answerService.createAnswer(formData);
+      const response = await answerService.createAnswer(answerData);
       
       if (response.success) {
         toast({

@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { AnswerForm } from './AnswerForm';
 import { useAnswerCreation } from '@/hooks/useAnswerCreation';
+import type { AnswerFormData } from './AnswerForm';
 
 interface AnswerCreatorProps {
   questionId: string;
