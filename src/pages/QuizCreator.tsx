@@ -40,8 +40,10 @@ const QuizCreatorContent = () => {
     });
   };
 
-  const handleQuestionCreated = () => {
+  const handleQuestionCreated = (newQuestion: any) => {
+    setQuestions(prev => [...prev, newQuestion]);
     setShowQuestionCreator(false);
+    setSelectedQuestionId(newQuestion._id);
     toast({
       title: "Question ajoutée",
       description: "Vous pouvez maintenant ajouter des réponses à cette question",
