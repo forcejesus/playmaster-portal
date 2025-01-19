@@ -41,21 +41,29 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
       
       const formData = new FormData();
       
-      // Ajout explicite de chaque champ requis
+      // Vérification et ajout explicite de chaque champ requis
+      if (!values.reponse_texte) {
+        throw new Error("Le texte de la réponse est requis");
+      }
       formData.append('reponse_texte', values.reponse_texte);
-      formData.append('etat', values.etat ? '1' : '0');
+      
+      if (!questionId) {
+        throw new Error("L'ID de la question est requis");
+      }
       formData.append('question', questionId);
+      
+      formData.append('etat', values.etat ? '1' : '0');
       
       if (selectedFile) {
         formData.append('file', selectedFile);
       }
 
-      // Log pour vérifier que tous les champs sont présents
-      const formDataObject: any = {};
+      // Vérification du contenu du FormData avant envoi
+      const formDataEntries: { [key: string]: any } = {};
       formData.forEach((value, key) => {
-        formDataObject[key] = value instanceof File ? value.name : value;
+        formDataEntries[key] = value instanceof File ? value.name : value;
       });
-      console.log('FormData contenu:', formDataObject);
+      console.log('Contenu du FormData avant envoi:', formDataEntries);
 
       const response = await answerService.createAnswer(formData);
       console.log('Réponse du serveur:', response);
@@ -76,7 +84,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
       console.error('Erreur lors de la création:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la création de la réponse",
+        description: error instanceof Error ? error.message : "Une erreur est survenue lors de la création de la réponse",
         variant: "destructive",
       });
     } finally {
