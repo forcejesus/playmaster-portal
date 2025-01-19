@@ -45,8 +45,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
       formData.append('question', questionId);
       
       if (selectedFile) {
-        formData.append('file', selectedFile, selectedFile.name);
-        console.log('File being appended:', selectedFile.name, selectedFile.type);
+        formData.append('file', selectedFile);
       }
 
       // Log FormData contents for debugging
