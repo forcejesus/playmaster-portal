@@ -25,6 +25,7 @@ interface AnswerCreatorProps {
 export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const form = useForm<z.infer<typeof answerSchema>>({
     resolver: zodResolver(answerSchema),
@@ -38,6 +39,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
     try {
       setIsLoading(true);
       console.log('Submitting answer with values:', values);
+      console.log('Selected file:', selectedFile);
       
       const formData = new FormData();
       
@@ -46,13 +48,15 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
       formData.append('etat', values.etat ? '1' : '0');
       formData.append('question', questionId);
       
-      // Only append file if it exists
-      if (values.file instanceof File) {
-        formData.append('file', values.file);
+      // Add file if selected
+      if (selectedFile) {
+        formData.append('file', selectedFile);
       }
 
       // Log the FormData contents for debugging
-      console.log('FormData contents:', Object.fromEntries(formData));
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
 
       const response = await answerService.createAnswer(formData);
       console.log('Answer creation response:', response);
@@ -65,6 +69,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
 
         onAnswerCreated();
         form.reset();
+        setSelectedFile(null);
       } else {
         throw new Error(response.message || "Erreur lors de la création de la réponse");
       }
@@ -78,6 +83,12 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFileSelected = (file: File) => {
+    console.log('File selected:', file);
+    setSelectedFile(file);
+    form.setValue('file', file);
   };
 
   return (
@@ -107,7 +118,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
                 <FormLabel>Image (optionnelle)</FormLabel>
                 <FormControl>
                   <ImageUpload
-                    onFileSelected={(file) => form.setValue('file', file)}
+                    onFileSelected={handleFileSelected}
                     accept="image/*"
                   />
                 </FormControl>
