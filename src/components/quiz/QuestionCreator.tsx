@@ -12,6 +12,7 @@ import { QuestionTypeSelect } from './QuestionTypeSelect';
 import { QuestionSettings } from './QuestionSettings';
 import { AnswerCreator } from './AnswerCreator';
 import { quizService } from '@/services/quizService';
+import { Separator } from '@/components/ui/separator';
 
 const questionSchema = z.object({
   libelle: z.string().min(1, "Le libellé est requis"),
@@ -33,6 +34,7 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof questionSchema>>({
@@ -104,6 +106,14 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
     }
   };
 
+  const handleAnswerCreated = (newAnswer: any) => {
+    setAnswers(prev => [...prev, newAnswer]);
+    toast({
+      title: "Succès",
+      description: "La réponse a été ajoutée avec succès",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -170,17 +180,39 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       </Card>
 
       {currentQuestionId && (
-        <Card className="p-6">
-          <AnswerCreator 
-            questionId={currentQuestionId}
-            onAnswerCreated={() => {
-              toast({
-                title: "Succès",
-                description: "La réponse a été ajoutée avec succès",
-              });
-            }}
-          />
-        </Card>
+        <>
+          <Card className="p-6">
+            <AnswerCreator 
+              questionId={currentQuestionId}
+              onAnswerCreated={handleAnswerCreated}
+            />
+          </Card>
+
+          {answers.length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Réponses ajoutées</h3>
+              <div className="space-y-4">
+                {answers.map((answer, index) => (
+                  <div key={answer._id || index} className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{answer.reponse_texte}</p>
+                      <span className={`px-2 py-1 rounded-full text-sm ${answer.etat ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {answer.etat ? 'Correcte' : 'Incorrecte'}
+                      </span>
+                    </div>
+                    {answer.file && (
+                      <img 
+                        src={`http://kahoot.nos-apps.com/${answer.file}`}
+                        alt={`Réponse ${index + 1}`}
+                        className="mt-2 w-full h-32 object-contain rounded-md"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
