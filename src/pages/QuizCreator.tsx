@@ -8,6 +8,8 @@ import { GameSetup } from "@/components/quiz/GameSetup";
 import { QuestionCreator } from '@/components/quiz/QuestionCreator';
 import { QueryClientProvider, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useToast } from "@/hooks/use-toast";
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +30,6 @@ const QuizCreatorContent = () => {
 
   const handleGameCreated = async (gameId: string) => {
     setCurrentGameId(gameId);
-    // Invalidate all queries to force a fresh reload
     await queryClient.invalidateQueries();
     toast({
       title: "Configuration terminée",
@@ -37,7 +38,6 @@ const QuizCreatorContent = () => {
   };
 
   const handleQuestionCreated = async () => {
-    // Invalidate all queries to force a fresh reload
     await queryClient.invalidateQueries();
     toast({
       title: "Question ajoutée",
@@ -46,61 +46,79 @@ const QuizCreatorContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
       <QuizNavigation />
       
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4 flex justify-end"
-        >
-          <Button
-            variant="outline"
-            onClick={() => setShowGameSetup(!showGameSetup)}
-            className="bg-[#9b87f5] hover:bg-[#D6BCFA] text-[#1A1F2C] border-2 border-[#9b87f5]/30 shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            {showGameSetup ? (
-              <>
-                <EyeOff className="w-4 h-4 mr-2" />
-                Cacher la configuration
-              </>
-            ) : (
-              <>
-                <Eye className="w-4 h-4 mr-2" />
-                Afficher la configuration
-              </>
-            )}
-          </Button>
-        </motion.div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card className="mb-8 p-6 shadow-lg">
+          <h1 className="text-3xl font-bold text-primary mb-2">
+            Création de Quiz
+          </h1>
+          <p className="text-muted-foreground">
+            Configurez votre jeu et ajoutez des questions pour créer une expérience interactive
+          </p>
+        </Card>
 
-        <AnimatePresence>
-          {showGameSetup && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <GameSetup
-                gameTitle={gameTitle}
-                setGameTitle={setGameTitle}
-                gameCoverImage={gameCoverImage}
-                setGameCoverImage={setGameCoverImage}
-                onGameCreated={handleGameCreated}
+        <div className="space-y-8">
+          <section>
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowGameSetup(!showGameSetup)}
+                className="bg-primary/10 hover:bg-primary/20 text-primary border-2 border-primary/30 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                {showGameSetup ? (
+                  <>
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Masquer la configuration
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Afficher la configuration
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <AnimatePresence>
+              {showGameSetup && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <GameSetup
+                    gameTitle={gameTitle}
+                    setGameTitle={setGameTitle}
+                    gameCoverImage={gameCoverImage}
+                    setGameCoverImage={setGameCoverImage}
+                    onGameCreated={handleGameCreated}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+
+          {currentGameId && (
+            <section className="space-y-6">
+              <Separator className="my-8" />
+              <div className="bg-primary/5 p-4 rounded-lg mb-6">
+                <h2 className="text-xl font-semibold text-primary mb-2">
+                  Gestion des Questions
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Ajoutez et gérez les questions de votre quiz
+                </p>
+              </div>
+              <QuestionCreator 
+                gameId={currentGameId} 
+                onQuestionCreated={handleQuestionCreated}
               />
-            </motion.div>
+            </section>
           )}
-        </AnimatePresence>
-
-        {currentGameId && (
-          <div className="space-y-6">
-            <QuestionCreator 
-              gameId={currentGameId} 
-              onQuestionCreated={handleQuestionCreated}
-            />
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
