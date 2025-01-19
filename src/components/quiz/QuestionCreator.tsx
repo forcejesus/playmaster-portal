@@ -55,7 +55,10 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       setIsLoading(true);
       const formData = new FormData();
       
-      // Ajouter les champs de base
+      // Ajouter l'ID du jeu
+      formData.append('jeu', gameId);
+      
+      // Ajouter les autres champs
       formData.append('libelle', values.libelle);
       formData.append('type_fichier', values.type_fichier);
       formData.append('temps', values.temps.toString());
@@ -67,19 +70,9 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
       if (values.fichier instanceof File) {
         formData.append('fichier', values.fichier);
       }
-      
-      // Ajouter l'ID du jeu
-      formData.append('jeu', gameId);
 
-      console.log('Sending question data:', {
-        libelle: values.libelle,
-        type_fichier: values.type_fichier,
-        temps: values.temps,
-        limite_response: values.limite_response,
-        typeQuestion: values.typeQuestion,
-        point: values.point,
-        jeu: gameId
-      });
+      console.log('Creating question with game ID:', gameId);
+      console.log('Form data content:', Object.fromEntries(formData));
 
       const response = await quizService.createQuestion(formData);
       
@@ -91,6 +84,9 @@ export const QuestionCreator = ({ gameId, onQuestionCreated }: QuestionCreatorPr
 
         setCurrentQuestionId(response.data._id);
         onQuestionCreated(response.data);
+        
+        // Reset answers when creating a new question
+        setAnswers([]);
       } else {
         throw new Error(response.message || "La création de la question a échoué");
       }
