@@ -38,24 +38,20 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
   const onSubmit = async (values: z.infer<typeof answerSchema>) => {
     try {
       setIsLoading(true);
-      console.log('Submitting answer with values:', values);
-      console.log('Selected file:', selectedFile);
       
       const formData = new FormData();
-      
-      // Add form values to FormData
       formData.append('reponse_texte', values.reponse_texte);
       formData.append('etat', values.etat ? '1' : '0');
       formData.append('question', questionId);
       
-      // Add file if selected
       if (selectedFile) {
-        formData.append('file', selectedFile);
+        formData.append('file', selectedFile, selectedFile.name);
+        console.log('File being appended:', selectedFile.name, selectedFile.type);
       }
 
-      // Log the FormData contents for debugging
+      // Log FormData contents for debugging
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+        console.log(`FormData ${key}:`, value instanceof File ? `File: ${value.name}` : value);
       }
 
       const response = await answerService.createAnswer(formData);
@@ -88,7 +84,6 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
   const handleFileSelected = (file: File) => {
     console.log('File selected:', file);
     setSelectedFile(file);
-    form.setValue('file', file);
   };
 
   return (
@@ -113,7 +108,7 @@ export const AnswerCreator = ({ questionId, onAnswerCreated }: AnswerCreatorProp
           <FormField
             control={form.control}
             name="file"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Image (optionnelle)</FormLabel>
                 <FormControl>
