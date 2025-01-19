@@ -55,24 +55,37 @@ export const GameCreator = ({ onGameCreated }: GameCreatorProps) => {
       setIsLoading(true);
       console.log('Submitting game with values:', values);
       
-      // Créer un objet avec les détails du jeu
-      const gameDetails = {
-        _id: Date.now().toString(), // Générer un ID temporaire
-        titre: values.titre,
-        image: URL.createObjectURL(values.image),
-        date: new Date().toISOString(),
-        questions: []
-      };
+      const formData = new FormData();
+      formData.append('titre', values.titre);
+      formData.append('image', values.image);
 
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      toast({
-        title: "Succès",
-        description: "Le jeu a été créé avec succès",
-      });
+      const response = await quizService.createGame(formData);
+      console.log('Game creation response:', response);
 
-      onGameCreated(gameDetails);
+      if (response.statut === 200 && response.jeu && response.jeu._id) {
+        // Créer un objet avec les détails du jeu en utilisant l'ID renvoyé par l'API
+        const gameDetails = {
+          _id: response.jeu._id,
+          titre: response.jeu.titre,
+          image: response.jeu.image,
+          date: response.jeu.date,
+          questions: response.jeu.questions
+        };
+
+        toast({
+          title: "Succès",
+          description: "Le jeu a été créé avec succès",
+        });
+
+        onGameCreated(gameDetails);
+      } else {
+        console.error('Invalid response format:', response);
+        toast({
+          title: "Erreur",
+          description: "Format de réponse invalide",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error('Error in game creation:', error);
       toast({
